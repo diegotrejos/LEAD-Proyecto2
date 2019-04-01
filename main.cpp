@@ -15,6 +15,7 @@ bool test_directory(char* directorio){
 	}
 }
 
+
 int filter_function(const struct dirent *dir){
 	if(((strstr(dir->d_name, ".png") || strstr(dir->d_name, ".jpg")) || ((strstr(dir->d_name, ".jpeg")) || (strstr(dir->d_name, ".gif")))) || ((strstr(dir->d_name, ".JPEG")))){
 		return 1;
@@ -43,6 +44,28 @@ int main(int argc, char* argv[]){
         }
         free(namelist);
     }
+    
+    
+    
+    
+int cnt=0;
+Lector lec;
+for(int i =0; i<2; i++)
+{
+	
+if(cnt == 0)
+{	
+lec.contrat("prueba1.jpg",cnt);
+//string q se guarda aqui no sirve cuando llega al metodo
+}
+else if(cnt == 1)
+{
+lec.contrat("prueba2.jpg",cnt);
+}
+
+    
+    
+    
     return 0;
 }
 
