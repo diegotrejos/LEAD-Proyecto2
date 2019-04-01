@@ -4,9 +4,23 @@
 
 int main()
 {
-	Lector lec;
 
-	lec.contrat("foto.pdf",1);
-	lec.contrat("imagen.txt",2);
+int cnt=0;
+Lector lec;
+for(int i =0; i<2; i++)
+{
+	
+if(cnt == 0)
+{	
+lec.contrat("prueba1.jpg",cnt);
+//string q se guarda aqui no sirve cuando llega al metodo
+}
+else if(cnt == 1)
+{
+lec.contrat("prueba2.jpg",cnt);
+}
+
+
+}
 	return 0;
 }
