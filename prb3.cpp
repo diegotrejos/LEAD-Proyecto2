@@ -65,7 +65,7 @@ void escribir(vector<char> result)
 
 }
 
-main(){
+int main(){
 
 	vector<char> v = leerBytes("index.jpeg");
 	cout << "tamMain: " << v.size() << endl;
