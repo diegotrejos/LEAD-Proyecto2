@@ -1,8 +1,10 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <fstream>
 #include <vector>
@@ -12,6 +14,42 @@
 #include <netinet/in.h> 
 #include <string.h>
 
+#include "Semaphore.h"
+
+using namespace std;
+
+Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
+
+bool test_directory(char* directorio);
+void leerBytes(char const* imagen);
+int crearSocket();
+int filter_function(const struct dirent *dir);
+int lector(char* directorio);
+
+int main(int argc, char* argv[]){
+	/*
+     if(fork() == 0){ Lector
+	 
+	 } else{ //Emisor
+	 
+	 }
+	*/
+	
+	
+	//contenido de lector.
+	char* directorio;
+	directorio = argv[1];
+	cout << "antes de crear semaforo" << endl;
+	contrat_ctrl = new Semaphore(2);
+	cout << "después de crear semaforo" << endl;
+	int success = lector(directorio);
+	if(success != 0){
+		free(contrat_ctrl);
+		return 1;
+	}
+	free(contrat_ctrl);
+	return 0;
+}
 
 bool test_directory(char* directorio){
 	DIR* work_bench = opendir(directorio);
@@ -44,6 +82,7 @@ int crearSocket()
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
                                                   &opt, sizeof(opt))) 
     { 
+
         perror("setsockopt"); 
         exit(EXIT_FAILURE); 
     } 
@@ -113,12 +152,6 @@ int crearSocket()
 	return 0;
 }
 
-
-
-
-
-
-
 int filter_function(const struct dirent *dir){
 	if(((strstr(dir->d_name, ".png") || strstr(dir->d_name, ".jpg")) || ((strstr(dir->d_name, ".jpeg")) || (strstr(dir->d_name, ".gif")))) || ((strstr(dir->d_name, ".JPEG")))){
 		return 1;
@@ -127,7 +160,7 @@ int filter_function(const struct dirent *dir){
 	}
 }
 
-int lector(const char* directorio){
+int lector(char* directorio){
 	if(!test_directory(directorio)){ // Revisa si el posible abrir el directorio
 		std:: cout << "Fallo al abrir el directorio\n";
 		return 1;
@@ -140,10 +173,16 @@ int lector(const char* directorio){
         perror("scandir");
     else
     {
+		cout << n << endl;
         for(i =0 ; i < n; ++i)
         {
-            printf("%ld %s\n",imagenes[i]->d_ino, imagenes[i]->d_name);
-            free(imagenes[i]);
+			contrat_ctrl->wait();
+			cout << i << endl;
+			if(fork() == 0){
+				//printf("%ld %s\n",imagenes[i]->d_ino, imagenes[i]->d_name);
+				leerBytes(strcat(directorio, imagenes[i]->d_name));
+				free(imagenes[i]);
+            }
         }
         free(imagenes);
     }
@@ -153,18 +192,21 @@ int lector(const char* directorio){
 }
 
 
-std::vector<char> leerBytes(char const* imagen)
+void leerBytes(char const* imagen)
 {
 	// Esto lee toda la imagen
-	ifstream ifs(imagen, ios::binary|ios::ate);
-	ifstream::pos_type pos = ifs.tellg();
+	
+	cout << getpid() << " "<< imagen << endl;
+	ifstream ifs(imagen, ios::binary|ios::ate); //objeto ifstream en binario
+	ifstream::pos_type pos = ifs.tellg(); // tellg() dice el tamaño, por ende pos es el tamaño del archivo.
 
-	std::vector<char> result(pos);
-
+	std::vector<char> result(pos); //vector de 512 bytes
+	
 	ifs.seekg(0, ios::beg);
 	ifs.read(&result[0], pos);
-
-	return result;
+	
+	contrat_ctrl->notify();
+	exit(0);
 }
 
 /*
@@ -229,6 +271,7 @@ int main(int argc, char* argv[]){
 
 
 */
+
 /*
 #include <sys/types.h>
 #include <sys/ipc.h>
