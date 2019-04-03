@@ -82,10 +82,8 @@ int crearSocket()
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
                                                   &opt, sizeof(opt))) 
     { 
-        perror("setsockopt"   #include <sys/types.h>
-       #include <sys/ipc.h>
-       #include <sys/sem.h>
-); 
+
+        perror("setsockopt"); 
         exit(EXIT_FAILURE); 
     } 
     address.sin_family = AF_INET; 
@@ -153,8 +151,6 @@ int crearSocket()
     */
 	return 0;
 }
-
-
 
 int filter_function(const struct dirent *dir){
 	if(((strstr(dir->d_name, ".png") || strstr(dir->d_name, ".jpg")) || ((strstr(dir->d_name, ".jpeg")) || (strstr(dir->d_name, ".gif")))) || ((strstr(dir->d_name, ".JPEG")))){
@@ -260,7 +256,7 @@ main()
 
 
 
-/* message send
+/* ********************** message send
 int main(int argc, char* argv[]){
 	// Se pasa el directorio con las imagenes como argumento del programa
 	if(argc != 2){ // Revisa si pasaron la carpeta como argumento del programa
