@@ -16,6 +16,8 @@
 
 #include "Semaphore.h"
 
+#define KEY 0xB57414
+
 using namespace std;
 
 Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
@@ -27,6 +29,11 @@ int filter_function(const struct dirent *dir);
 int lector(char* directorio);
 
 int main(int argc, char* argv[]){
+	if(argc < 2){
+		cout << "Es necesario indicar el directorio" << endl;
+		return(1);
+	}
+	
 	/*
      if(fork() == 0){ Lector
 	 
@@ -40,7 +47,7 @@ int main(int argc, char* argv[]){
 	char* directorio;
 	directorio = argv[1];
 	cout << "antes de crear semaforo" << endl;
-	contrat_ctrl = new Semaphore(2);
+	contrat_ctrl = new Semaphore(2, KEY);
 	cout << "después de crear semaforo" << endl;
 	int success = lector(directorio);
 	if(success != 0){

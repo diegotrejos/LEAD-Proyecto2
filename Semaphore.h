@@ -8,10 +8,10 @@ class Semaphore {
 	
 public:
 
-    Semaphore (int n = 0);
+    Semaphore (int n = 0, key_t key = 0xA00000);
     ~Semaphore ();
-    void notify();
     
+    void notify();
     void wait();
     
 private:

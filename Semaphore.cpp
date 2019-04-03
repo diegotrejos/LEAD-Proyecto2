@@ -1,11 +1,9 @@
 #include "Semaphore.h"
 
-#define KEY 0xB57414
-
 using namespace std;
 
-Semaphore::Semaphore(int n){
-	id = semget(KEY,1,IPC_CREAT|0600);
+Semaphore::Semaphore(int n, key_t key){
+	id = semget(key,1,IPC_CREAT|0600);
 	if(id == -1){
 		exit(1);
 	}
