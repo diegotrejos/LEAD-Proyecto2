@@ -15,12 +15,14 @@
 #include <string.h>
 
 #include "Semaphore.h"
+#include "Buzon.h"
 
 #define KEY 0xB57414
 
 using namespace std;
 
 Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
+Buzon* bzn;
 
 bool test_directory(char* directorio);
 void leerBytes(char const* imagen);

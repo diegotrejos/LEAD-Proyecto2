@@ -7,6 +7,11 @@ Buzon::Buzon(int tipoMensaje, key_t key)
 	setMsqid();
 }
 
+Buzon::~Buzon()
+{
+	msgctl(qId,0,IPC_RMID)
+}
+
 void Buzon::setMsqid(){
 	if ((qId = msgget( key, IPC_CREAT | 0666 )) == -1) {
 		perror( "server: Failed to create message queue:" );
