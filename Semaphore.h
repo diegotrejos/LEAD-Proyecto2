@@ -1,3 +1,7 @@
+#ifndef SEMAPHORE_H
+#define SEMAPHORE_H
+
+
 #include <sys/types.h>
 #include <cstdlib>
 #include <sys/ipc.h>
@@ -20,3 +24,5 @@ private:
     int count;
     
 };
+
+#endif // SEMAPHORE_H
