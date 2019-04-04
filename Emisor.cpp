@@ -2,13 +2,6 @@
 //#include "Buzon.h"
 
 
-//transformalos diferentes paquetes de datos en una imagen
-void Emisor::archivar()//transforma datos a archivo
-{
-
-
-}	
-
 
 void Emisor::creaArchivo(char tag, char* nombre)
 {
@@ -31,9 +24,6 @@ void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag
         }
     } 
 
-
-
-
 	ofstream ofs;  // Create Object of Ofstream
     ofs.open (nombre, ios::app); // Append mode
   	int tam = result.size();
@@ -45,7 +35,11 @@ void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag
 
 
 
+Emisor::Emisor()
+{
 
+}
+/*
  Emisor::Emisor(int msqid, vector<char> v)//falta definir que va a matar esto
 {
  	bool trabajando = true;
@@ -61,20 +55,20 @@ void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag
  		}	
 
 
-}
-
+}*/
 void Emisor::envio()
 {
 	//sockets
 }
 
-void Emisor::recibe(int msqid, vector<char> v)//argumentos para que sirba buzon, v esta para pruebas, 
+
+void Emisor::recibe(vector<char> v)//argumentos para que sirba buzon, v esta para pruebas, 
 {
 	bool nuevo= true;//decide si el tag es nuevo
-	//buzon
+	
 
-	char tag = v[0];
-	v.erase(v.begin());//borra el tag
+	char tag = v[129];
+	v.erase(v.end());//borra el tag
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	 { 
         if(tag == itr->first)

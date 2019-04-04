@@ -14,10 +14,10 @@ using namespace std;
 class Emisor
 {
 public:
-	 Emisor(int msqid, std::vector<char> v);
-	void recibe(int msqid,vector<char>);//recibe datos del buzon
-	void envio();
-	void archivar();//transforma datos a archivo
+
+	 Emisor();
+	void recibe(vector<char>);//recibe datos del buzon
+	void envio();//para sockets despues
 	void escribir(char tag, vector<char>);//escribe en archivo ya abierto
 	void creaArchivo(char tag, char* nombre);//abre archivo nuevo
 	~Emisor();

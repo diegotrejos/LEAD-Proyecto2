@@ -9,7 +9,7 @@ Buzon::Buzon(int tipoMensaje, key_t key)
 
 Buzon::~Buzon()
 {
-	msgctl(qId,0,IPC_RMID);
+	msgctl(qId,0,IPC_RMID)
 }
 
 void Buzon::setMsqid(){

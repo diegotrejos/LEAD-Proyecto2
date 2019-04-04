@@ -9,6 +9,7 @@
 #include <iostream>
 #define MAX 129
 
+
 class Buzon{
 	public:
 		int qId;

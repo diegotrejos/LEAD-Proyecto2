@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+
 #include "Semaphore.h"
 #include "Buzon.h"
 
@@ -24,6 +25,7 @@ int crearSocket();
 int filter_function(const struct dirent *dir);
 int lector(char* directorio);
 
+
 int main(int argc, char* argv[]){
 	if(argc < 2){
 		cout << "Es necesario indicar el directorio" << endl;
@@ -31,12 +33,26 @@ int main(int argc, char* argv[]){
 	}
 	
 	/*
+
      if(fork() == 0){ //Lector
 	 
 	 } else{ //Emisor
 	 
+	Emisor emi;
+	Buzon buzon_emisor ;
+	bool trabajando = true;
+	while(trabajando == true)
+		{	
+			
+
+			//buzon q no logre usar  que retorn el veector<char> imagen
+			vector<char> imagen=buzon_emisor.recibir();
+			emi.recibe(imagen);
+
+			trabajando=false;//algo para frenarlo hay q definir eso
+ 		}	
 	 }
-	*/
+	
 	
 	
 	//contenido de lector.
@@ -46,6 +62,7 @@ int main(int argc, char* argv[]){
 	contrat_ctrl = new Semaphore(2, KEY);
 	//cout << "después de crear semaforo" << endl;
 	bzn = new Buzon(1, KEY);
+
 	int success = lector(directorio);
 	if(success != 0){
 		free(contrat_ctrl);
