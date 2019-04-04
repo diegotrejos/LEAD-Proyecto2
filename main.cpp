@@ -13,7 +13,7 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h>
-
+#include "Emisor.h"
 #include "Semaphore.h"
 #include "Buzon.h"
 
@@ -30,19 +30,33 @@ int crearSocket();
 int filter_function(const struct dirent *dir);
 int lector(char* directorio);
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[])
+{
 	if(argc < 2){
 		cout << "Es necesario indicar el directorio" << endl;
 		return(1);
-	}
+
 	
-	/*
-     if(fork() == 0){ Lector
+	
+     if(fork() == 0){ //Lector
 	 
 	 } else{ //Emisor
 	 
+	Emisor emi;
+	Buzon buzon_emisor ;
+	bool trabajando = true;
+	while(trabajando == true)
+		{	
+			
+
+			//buzon q no logre usar  que retorn el veector<char> imagen
+			vector<char> imagen=buzon_emisor.recibir();
+			emi.recibe(imagen);
+
+			trabajando=false;//algo para frenarlo hay q definir eso
+ 		}	
 	 }
-	*/
+	
 	
 	
 	//contenido de lector.
