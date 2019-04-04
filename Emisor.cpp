@@ -2,6 +2,7 @@
 //#include "Buzon.h"
 
 
+
 void Emisor::creaArchivo(char tag, char* nombre)
 {
 	// Esto escribe el binario en una imagen
@@ -33,6 +34,7 @@ void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag
 }
 
 
+
 Emisor::Emisor()
 {
 
@@ -54,11 +56,11 @@ Emisor::Emisor()
 
 
 }*/
-
 void Emisor::envio()
 {
 	//sockets
 }
+
 
 void Emisor::recibe(vector<char> v)//argumentos para que sirba buzon, v esta para pruebas, 
 {

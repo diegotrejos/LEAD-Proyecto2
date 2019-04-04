@@ -14,6 +14,7 @@ using namespace std;
 class Emisor
 {
 public:
+
 	 Emisor();
 	void recibe(vector<char>);//recibe datos del buzon
 	void envio();//para sockets despues

@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#define MAX 128
+#define MAX 129
+
 
 class Buzon{
 	public:
@@ -19,7 +20,7 @@ class Buzon{
 
 		typedef struct msgbuf{
 			int mType;
-			char mText[128];
+			char mText[MAX];
 		}buzonMensajes;
 		
 		buzonMensajes miBuzon;
