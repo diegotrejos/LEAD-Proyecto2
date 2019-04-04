@@ -1,34 +1,37 @@
 #include <algorithm>
 #include <cstring>
-#include <iostream>
 #include <fstream>
-#include <stdio.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <fstream>
 #include <vector>
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
-#include <netinet/in.h> 
-#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #include "Semaphore.h"
+#include "Buzon.h"
+
+#define KEY 0xB57414
 
 using namespace std;
 
 Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
+Buzon* bzn;
 
 bool test_directory(char* directorio);
-void leerBytes(char const* imagen);
+void contratista(char const* imagen, const char tag);
 int crearSocket();
 int filter_function(const struct dirent *dir);
 int lector(char* directorio);
 
 int main(int argc, char* argv[]){
+	if(argc < 2){
+		cout << "Es necesario indicar el directorio" << endl;
+		return(1);
+	}
+	
 	/*
-     if(fork() == 0){ Lector
+     if(fork() == 0){ //Lector
 	 
 	 } else{ //Emisor
 	 
@@ -39,14 +42,17 @@ int main(int argc, char* argv[]){
 	//contenido de lector.
 	char* directorio;
 	directorio = argv[1];
-	cout << "antes de crear semaforo" << endl;
-	contrat_ctrl = new Semaphore(2);
-	cout << "después de crear semaforo" << endl;
+	//cout << "antes de crear semaforo" << endl;
+	contrat_ctrl = new Semaphore(2, KEY);
+	//cout << "después de crear semaforo" << endl;
+	bzn = new Buzon(1, KEY);
 	int success = lector(directorio);
 	if(success != 0){
 		free(contrat_ctrl);
+		free(bzn);
 		return 1;
 	}
+	free(bzn);
 	free(contrat_ctrl);
 	return 0;
 }
@@ -174,13 +180,13 @@ int lector(char* directorio){
     else
     {
 		cout << n << endl;
-        for(i =0 ; i < n; ++i)
+        for(i =0 ; i < 1; ++i)
         {
 			contrat_ctrl->wait();
 			cout << i << endl;
 			if(fork() == 0){
 				//printf("%ld %s\n",imagenes[i]->d_ino, imagenes[i]->d_name);
-				leerBytes(strcat(directorio, imagenes[i]->d_name));
+				contratista(strcat(directorio, imagenes[i]->d_name), char(i+33));
 				free(imagenes[i]);
             }
         }
@@ -192,18 +198,73 @@ int lector(char* directorio){
 }
 
 
-void leerBytes(char const* imagen)
-{
+void contratista(char const* imagen, const char tag)
+{	
 	// Esto lee toda la imagen
-	
-	cout << getpid() << " "<< imagen << endl;
-	ifstream ifs(imagen, ios::binary|ios::ate); //objeto ifstream en binario
-	ifstream::pos_type pos = ifs.tellg(); // tellg() dice el tamaño, por ende pos es el tamaño del archivo.
+	cout << imagen << " " << tag << endl;
+	ifstream ifs(imagen, ios::binary|ios::ate); //lee la imagen en bytes
+	ifstream::pos_type tam = ifs.tellg(); //saca el tamano 
 
-	std::vector<char> result(pos); //vector de 512 bytes
-	
+	vector<char> result(512); // crea vector de 512 bytes
+	//char* result;
+
 	ifs.seekg(0, ios::beg);
-	ifs.read(&result[0], pos);
+
+	int contador = 0;
+	while(contador+512 < int(tam)){
+		cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
+		ifs.read(&result[0], 512);
+		if(ifs){
+			cout << "LEI BIEN LOS DATOS" << endl;
+		}
+		contador = contador + 512;
+		
+		cout << "VOY A INSERTAR LOS DATOS 1" << endl;
+		vector<char> vector1(result.begin(), result.begin() + 128);
+		vector1.insert( vector1.end(), tag );
+		cout << "VOY A ENVIAR LOS DATOS 1" << endl;
+		bzn->enviar(vector1.data());
+		
+		cout << "VOY A INSERTAR LOS DATOS 2" << endl;
+		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
+		vector2.insert( vector2.end(), tag );
+		cout << "VOY A ENVIAR LOS DATOS 2" << endl;
+		bzn->enviar(vector2.data());
+		
+		cout << "VOY A INSERTAR LOS DATOS 3" << endl;
+		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
+		vector3.insert( vector3.end(), tag );
+		cout << "VOY A ENVIAR LOS DATOS 3" << endl;
+		bzn->enviar(vector3.data());
+		
+		cout << "VOY A INSERTAR LOS DATOS 4" << endl;
+		vector<char> vector4(result.begin() + 384, result.begin() + 512);
+		vector4.insert( vector4.end(), tag );
+		cout << "VOY A ENVIAR LOS DATOS 4" << endl;
+		bzn->enviar(vector4.data());
+		
+	}
+	while (contador != int(tam)){ //cuando queda menos de 512 bytes
+		if((int(tam) - contador) > 127){
+			result.resize(128);
+			ifs.read(&result[0], 128);
+			if(ifs){
+				cout << "LEI BIEN LOS DATOS" << endl;
+			}
+			contador  = contador + 128;
+			result.insert(result.end(), tag);
+			bzn->enviar(result.data());
+		}else{
+			result.resize(int(tam)-contador);
+			ifs.read(&result[0], (int(tam)-contador));
+			if(ifs){
+				cout << "LEI BIEN LOS DATOS" << endl;
+			}
+			contador  = tam;
+			result.insert(result.end(), tag);
+			bzn->enviar(result.data());
+		}
+	}
 	
 	contrat_ctrl->notify();
 	exit(0);
