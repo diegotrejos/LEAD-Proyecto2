@@ -65,8 +65,8 @@ void Emisor::recibe(vector<char> v)//argumentos para que sirba buzon, v esta par
 	bool nuevo= true;//decide si el tag es nuevo
 	
 
-	char tag = v[0];
-	v.erase(v.begin());//borra el tag
+	char tag = v[129];
+	v.erase(v.end());//borra el tag
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	 { 
         if(tag == itr->first)
