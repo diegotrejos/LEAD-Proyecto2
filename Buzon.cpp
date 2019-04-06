@@ -7,10 +7,10 @@ Buzon::Buzon(int tipoMensaje, key_t key)
 	setMsqid();
 }
 
-Buzon::~Buzon()
+/*Buzon::~Buzon()
 {
-	msgctl(qId,0,IPC_RMID)
-}
+	msgctl(qId,0,IPC_RMID);
+}*/
 
 void Buzon::setMsqid(){
 	if ((qId = msgget( key, IPC_CREAT | 0666 )) == -1) {
