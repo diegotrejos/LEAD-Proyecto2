@@ -28,7 +28,7 @@ class Buzon{
 		
 		void setMensaje(char* mensaje);
 		void enviar(char* mensaje, long tipoMensaje);
-		void recibir();
+		int recibir();
 		void setMsqid();
 		void sacarQueue();
 };

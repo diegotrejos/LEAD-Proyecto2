@@ -57,6 +57,7 @@ void contratista(char const* imagen, const char tag)
 	ifs.seekg(0, ios::beg);
 
 	int contador = 0;
+	int cantidadMensajes = 0;
 	while(contador+512 < int(tam)){
 		cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
 		ifs.read(&result[0], 512);
@@ -67,28 +68,31 @@ void contratista(char const* imagen, const char tag)
 		
 		cout << "VOY A INSERTAR LOS DATOS 1" << endl;
 		vector<char> vector1(result.begin(), result.begin() + 128);
-		vector1.insert( vector1.end(), tag );
+		vector1[128] = tag;
 		cout << "VOY A ENVIAR LOS DATOS 1" << endl;
 		bzn->enviar(vector1.data(), 1);
+		++cantidadMensajes;
 		
 		cout << "VOY A INSERTAR LOS DATOS 2" << endl;
 		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
-		vector2.insert( vector2.end(), tag );
-		cout << "VOY A ENVIAR LOS DATOS 2" << endl;
+		vector2[128] = tag;
+		cout << "VOY A ENVIAR LOS DATOS 2" << " Tamaño vector 2: " << vector2.size() << endl;
 		bzn->enviar(vector2.data(), 1);
+		++cantidadMensajes;
 		
 		cout << "VOY A INSERTAR LOS DATOS 3" << endl;
 		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
-		vector3.insert( vector3.end(), tag );
+		vector3[128] = tag;
 		cout << "VOY A ENVIAR LOS DATOS 3" << endl;
 		bzn->enviar(vector3.data(), 1);
+		++cantidadMensajes;
 		
 		cout << "VOY A INSERTAR LOS DATOS 4" << endl;
 		vector<char> vector4(result.begin() + 384, result.begin() + 512);
-		vector4.insert( vector4.end(), tag );
+		vector4[128] = tag;
 		cout << "VOY A ENVIAR LOS DATOS 4" << endl;
 		bzn->enviar(vector4.data(), 1);
-		
+		++cantidadMensajes;
 	}
 	while (contador != int(tam)){ //cuando queda menos de 512 bytes
 		if((int(tam) - contador) > 127){
@@ -100,17 +104,20 @@ void contratista(char const* imagen, const char tag)
 			contador  = contador + 128;
 			result.insert(result.end(), tag);
 			bzn->enviar(result.data(), 1);
+			++cantidadMensajes;
 		}else{
 			result.resize(int(tam)-contador);
 			ifs.read(&result[0], (int(tam)-contador));
 			if(ifs){
-				cout << "LEI BIEN LOS DATOS" << endl;
+				cout << "LEI BIEN LOS DATOS2" << endl;
 			}
 			contador  = tam;
 			result.insert(result.end(), tag);
 			bzn->enviar(result.data(), 1);
+			++cantidadMensajes;
 		}
 	}
+	printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
 	
 	contrat_ctrl->notify();
 	exit(0);
