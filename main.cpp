@@ -156,16 +156,18 @@ int lector(char* directorio){
 
 
 
-
-
-
-
-
 int main(int argc, char* argv[]){
 
-cout<<"prueba con imagen prueba1.jpg"<<"con tag A"<<endl;
-contratista("prueba2.jpg", 'A');
-contratista("prueba1.jpg", 'B');
+	char letra = '!';
+    	
+	cout<<"prueba con imagen prueba1.jpg con tag: "<< letra <<endl;
+	contratista("prueba2.jpg", letra);
+	if( letra = '}'){
+		letra = '!';
+	}else{
+		letra  = static_cast<char>(letra + 1);
+	}
+	
 
 /*	if(argc < 2){
 		cout << "Es necesario indicar el directorio" << endl;
