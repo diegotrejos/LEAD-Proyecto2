@@ -22,5 +22,6 @@ public:
 	void creaArchivo(char tag,char* datos);//abre archivo nuevo
 	~Emisor();
 	map<char,char*> archivos;//podria hacer mapas, tengo tag y nombre de archivo
+	int contador=0;
 
 };

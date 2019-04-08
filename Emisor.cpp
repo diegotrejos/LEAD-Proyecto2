@@ -14,15 +14,10 @@ char* nombre;
         }
     }
 
-	
-	string nombre_archivo="resultados/";
-    char* a = new char[nombre_archivo.size()];
-    strcpy (a, nombre_archivo.c_str());
-    strcat (a, nombre);
 
-	cout<<"creando archivo "<< a <<endl;
-	ofstream ofs (a, ios::out | ios::binary);
-	int tam = 129;
+	cout<<"creando archivo "<< nombre <<endl;
+	ofstream ofs (nombre, ios::out | ios::binary);
+	int tam = 128;
 	char* c = &dato[0];
     ofs.write(c, tam);
 	ofs.close();
@@ -33,7 +28,7 @@ void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda 
 {
 	// Esto escribe el binario en una imagen
 	//ofstream ofs (nombre, ios::out | ios::binary);
-	cout<<"continua escribiendo"<<endl;
+	//cout<<"continua escribiendo"<<endl;
 	char * nombre;
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	 { 
@@ -43,16 +38,12 @@ void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda 
         }
     } 
    
-	string nombre_archivo="resultados/";
-    char* a = new char[nombre_archivo.size()];
-    strcpy (a, nombre_archivo.c_str());
-    strcat (a, nombre);
 
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
 
 	ofstream ofs;  // Create Object of Ofstream
-    ofs.open (a, ios::app); // Append mode
-  	int tam = 129;
+    ofs.open (nombre, ios::app); // Append mode
+  	int tam = 128;
 	char* c = &result[0];
     ofs.write(c, tam);
     ofs.close(); // Closing the file
@@ -111,8 +102,16 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 
 	if(nuevo ==true)//si el tag es nuevo crea archivo
 	{
+		contador++;
 		
-		archivos.insert(pair<char,char*>(tag,"Auxilio"));//el nombre del archivo es el resto del paquete
+		string nombre_archivo="resultados/imagen";
+		string Ccontador=to_string(contador);
+		Ccontador=nombre_archivo+Ccontador;
+    	char* a = new char[Ccontador.size()];
+    	strcpy (a, Ccontador.c_str());
+    
+
+		archivos.insert(pair<char,char*>(tag,a));//el nombre del archivo es el resto del paquete
 
 		/*
 		srand(time(NULL));
@@ -125,9 +124,12 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 		
 	else//si no es nuevo escribe en uno existente
 	{
+
 	escribir(tag,paq);
 	
-	}	
+	}
+
+	c	
 
 }
 

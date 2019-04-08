@@ -164,7 +164,8 @@ int lector(char* directorio){
 int main(int argc, char* argv[]){
 
 cout<<"prueba con imagen prueba1.jpg"<<"con tag A"<<endl;
-contratista("prueba1.jpg", 'A');
+contratista("prueba2.jpg", 'A');
+contratista("prueba1.jpg", 'B');
 
 /*	if(argc < 2){
 		cout << "Es necesario indicar el directorio" << endl;
