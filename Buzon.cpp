@@ -1,8 +1,7 @@
 #include "Buzon.h"
 
-Buzon::Buzon(int tipoMensaje, key_t key)
+Buzon::Buzon(key_t key)
 {
-	miBuzon.mType = tipoMensaje;
 	this->key = key;
 	setMsqid();
 }
@@ -27,15 +26,16 @@ void Buzon::setMensaje(char* mensaje){
 }
 
 void Buzon::recibir(){
-	if (msgrcv(qId, &miBuzon, MAX, 0, 0) == -1)
+	if (msgrcv(qId, &miBuzon, sizeof (miBuzon.mText), 0, 0) == -1)
 		perror("client: msgrcv failed:");
    else
 		printf("client: Message received = %s\n", miBuzon.mText);
 }
 
-void Buzon::enviar(char* mensaje){
+void Buzon::enviar(char* mensaje, long tipoMensaje){
 	setMensaje(mensaje);
-	if (msgsnd(qId, &miBuzon, /*sizeof miBuzon.mText*/MAX, IPC_NOWAIT) == -1){
+	miBuzon.mType = tipoMensaje;
+	if (msgsnd(qId, &miBuzon, sizeof (miBuzon.mText), IPC_NOWAIT) == -1){
 		perror("server: msgsnd failed:");
 		exit(2);
    }else{

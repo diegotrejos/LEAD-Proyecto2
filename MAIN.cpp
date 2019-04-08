@@ -69,25 +69,25 @@ void contratista(char const* imagen, const char tag)
 		vector<char> vector1(result.begin(), result.begin() + 128);
 		vector1.insert( vector1.end(), tag );
 		cout << "VOY A ENVIAR LOS DATOS 1" << endl;
-		bzn->enviar(vector1.data());
+		bzn->enviar(vector1.data(), 1);
 		
 		cout << "VOY A INSERTAR LOS DATOS 2" << endl;
 		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
 		vector2.insert( vector2.end(), tag );
 		cout << "VOY A ENVIAR LOS DATOS 2" << endl;
-		bzn->enviar(vector2.data());
+		bzn->enviar(vector2.data(), 1);
 		
 		cout << "VOY A INSERTAR LOS DATOS 3" << endl;
 		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
 		vector3.insert( vector3.end(), tag );
 		cout << "VOY A ENVIAR LOS DATOS 3" << endl;
-		bzn->enviar(vector3.data());
+		bzn->enviar(vector3.data(), 1);
 		
 		cout << "VOY A INSERTAR LOS DATOS 4" << endl;
 		vector<char> vector4(result.begin() + 384, result.begin() + 512);
 		vector4.insert( vector4.end(), tag );
 		cout << "VOY A ENVIAR LOS DATOS 4" << endl;
-		bzn->enviar(vector4.data());
+		bzn->enviar(vector4.data(), 1);
 		
 	}
 	while (contador != int(tam)){ //cuando queda menos de 512 bytes
@@ -99,7 +99,7 @@ void contratista(char const* imagen, const char tag)
 			}
 			contador  = contador + 128;
 			result.insert(result.end(), tag);
-			bzn->enviar(result.data());
+			bzn->enviar(result.data(), 1);
 		}else{
 			result.resize(int(tam)-contador);
 			ifs.read(&result[0], (int(tam)-contador));
@@ -108,7 +108,7 @@ void contratista(char const* imagen, const char tag)
 			}
 			contador  = tam;
 			result.insert(result.end(), tag);
-			bzn->enviar(result.data());
+			bzn->enviar(result.data(), 1);
 		}
 	}
 	
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]){
 	//cout << "antes de crear semaforo" << endl;
 	contrat_ctrl = new Semaphore(2, KEY);
 	//cout << "después de crear semaforo" << endl;
-	bzn = new Buzon(1, KEY);
+	bzn = new Buzon(KEY);
 
 	int success = lector(directorio);
 	/*if(success != 0){
@@ -195,7 +195,8 @@ int main(int argc, char* argv[]){
 		free(bzn);
 		return 1;
 	}
-	free(bzn);
+	free(bzn
+	* );
 	free(contrat_ctrl);*/
 	return 0;
 }

@@ -15,11 +15,11 @@ class Buzon{
 		int qId;
 		key_t key;
 		
-		Buzon(int tipoMensaje, key_t key);
+		Buzon(key_t key);
 		//~Buzon();
 
 		typedef struct msgbuf{
-			int mType;
+			long mType;
 			char mText[MAX];
 		}buzonMensajes;
 		
@@ -27,7 +27,7 @@ class Buzon{
 		struct msqid_ds msgCtlBuf;
 		
 		void setMensaje(char* mensaje);
-		void enviar(char* mensaje);
+		void enviar(char* mensaje, long tipoMensaje);
 		void recibir();
 		void setMsqid();
 		void sacarQueue();
