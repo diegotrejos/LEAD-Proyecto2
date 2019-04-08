@@ -84,7 +84,7 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 	bool nuevo= true;//decide si el tag es nuevo
 	
 	char tag = char(paq[128]);
-	//cout<<"tag: "<< tag <<" ."<<endl;
+	cout<<"tag: "<< tag <<" ."<<endl;
 	
 
 
@@ -128,8 +128,8 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 	escribir(tag,paq);
 	
 	}
-
-	c	
+	//contador++;
+	cout<<"Termine paquete#"<<contador<<endl;	
 
 }
 
