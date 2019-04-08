@@ -2,18 +2,28 @@
 //#include "Buzon.h"
 
 
-void Emisor::creaArchivo(char tag, char* nombre)
+void Emisor::creaArchivo(char tag, char* dato)
 {
+
+char* nombre;	
+	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
+	 { 
+        if(tag == itr->first)
+        {
+        	nombre = itr->second;
+        }
+    }
+
 	
+	string nombre_archivo="resultados/";
+    char* a = new char[nombre_archivo.size()];
+    strcpy (a, nombre_archivo.c_str());
+    strcat (a, nombre);
 
-	string nombre_archivo;
-
-
-
-    char* strcat(char* nombre_archivo, const char * nombre);
-	ofstream ofs (nombre_archivo, ios::out | ios::binary);
+	cout<<"creando archivo "<< a <<endl;
+	ofstream ofs (a, ios::out | ios::binary);
 	int tam = 129;
-	char* c = &result[0];
+	char* c = &dato[0];
     ofs.write(c, tam);
 	ofs.close();
 
@@ -23,6 +33,7 @@ void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda 
 {
 	// Esto escribe el binario en una imagen
 	//ofstream ofs (nombre, ios::out | ios::binary);
+	cout<<"continua escribiendo"<<endl;
 	char * nombre;
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	 { 
@@ -31,12 +42,16 @@ void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda 
         	nombre = itr->second;
         }
     } 
-    string nombre_archivo;
-    char* strcat(char* nombre_archivo, const char * nombre);
+   
+	string nombre_archivo="resultados/";
+    char* a = new char[nombre_archivo.size()];
+    strcpy (a, nombre_archivo.c_str());
+    strcat (a, nombre);
+
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
 
 	ofstream ofs;  // Create Object of Ofstream
-    ofs.open (nombre_archivo, ios::app); // Append mode
+    ofs.open (a, ios::app); // Append mode
   	int tam = 129;
 	char* c = &result[0];
     ofs.write(c, tam);
@@ -97,16 +112,17 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 	if(nuevo ==true)//si el tag es nuevo crea archivo
 	{
 		
-		
+		archivos.insert(pair<char,char*>(tag,"Auxilio"));//el nombre del archivo es el resto del paquete
 
-		cout<<"EL archivo se va a llama: "<<paq<<endl;
-		
-
-		archivos.insert(pair<char,char*>(tag,paq));//el nombre del archivo es el resto del paquete
-
-		creaArchivo(tag, paq);
-
+		/*
+		srand(time(NULL));
+		int nombre;
+		nombre=rand()%127;
+  		cout<<"EL archivo se va a llama: "<<endl;
+		*/
+		creaArchivo(tag,paq);
 	}	
+		
 	else//si no es nuevo escribe en uno existente
 	{
 	escribir(tag,paq);

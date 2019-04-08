@@ -196,7 +196,7 @@ contratista("prueba1.jpg", 'A');
 	 */
 	
 	
-	//contenido de lector.
+/*	//contenido de lector.
 	char* directorio;
 	directorio = argv[1];
 	//cout << "antes de crear semaforo" << endl;
