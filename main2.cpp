@@ -6,14 +6,17 @@ int main(){
 	Buzon* buzon = new Buzon(key);
 	std::cout << "Esperando mensaje ... \n";
 	int size = 0;
-	std::ofstream of("resultados/imagen.jpg", std::ios::out | std::ios::binary);
 	int mensajesRec = 0;
 	while(true){
-		size = buzon->recibir();
+		std::ofstream of("resultados/prueba.jpg", std::ios::out | std::ios::binary | std::ios::app);
+		int size1 = buzon->recibir();
 		size = buzon->miBuzon.mensajeUtil;
 		++mensajesRec;
+		std::cout << buzon->miBuzon.mText << std::endl;
 		printf("Cantidad de mensajes recibidos: %d y el tamano del paquete es %d\n", mensajesRec, size);
 		of.write(buzon->miBuzon.mText, size);
+		of.close();
 	}
+	
 	//free(buzon);
 }

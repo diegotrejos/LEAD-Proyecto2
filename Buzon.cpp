@@ -32,7 +32,7 @@ int Buzon::recibir(){
 	if (size == -1)
 		perror("client: msgrcv failed:");
 	else{
-		//printf("client: Message received = %s\n", miBuzon.mText);
+		printf("client: Message received = %s\n", miBuzon.mText);
 		printf("Mensaje util = %d\n", mensajeUtilBuzon);	
 	}
 		
