@@ -10,17 +10,21 @@
 #include <string.h>
 #include <iterator>
 
+#include "Buzon.h"
+
 using namespace std;
 class Emisor
 {
 public:
 
-	 Emisor();
-	void recibe(vector<char>);//recibe datos del buzon
+	Emisor(Buzon* miBuzon);
+	void recibe();//recibe datos del buzon
 	void envio();//para sockets despues
-	void escribir(char tag, vector<char>);//escribe en archivo ya abierto
-	void creaArchivo(char tag, char* nombre);//abre archivo nuevo
+	void escribir(char tag);//escribe en archivo ya abierto
+//	void creaArchivo(char* nombre);//abre archivo nuevo
 	~Emisor();
+	int contador;
+	Buzon* bzn;
 	map<char,char*> archivos;//podria hacer mapas, tengo tag y nombre de archivo
 
 };
