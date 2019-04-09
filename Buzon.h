@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#define MAX 129
+#define MAX 128
 
 
 class Buzon{
@@ -22,6 +22,7 @@ class Buzon{
 			long mType;
 			char mText[MAX];
 			char tag;
+			int mensajeUtil;
 		}buzonMensajes;
 		
 		buzonMensajes miBuzon;

@@ -27,18 +27,23 @@ void Buzon::setMensaje(char* mensaje, int tamanoMensaje){
 }
 
 int Buzon::recibir(){
-	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText), 1, 0) ;
+	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 1, 0);
+	int mensajeUtilBuzon = miBuzon.mensajeUtil;
 	if (size == -1)
 		perror("client: msgrcv failed:");
-	else
-		printf("client: Message received = %s\n", miBuzon.mText);	
+	else{
+		//printf("client: Message received = %s\n", miBuzon.mText);
+		printf("Mensaje util = %d\n", mensajeUtilBuzon);	
+	}
+		
 	return size;
 }
 
 void Buzon::enviar(char* mensaje, long tipoMensaje, int tamanoMensaje){
 	setMensaje(mensaje, tamanoMensaje);
 	miBuzon.mType = tipoMensaje;
-	if (msgsnd(qId, &miBuzon, sizeof (miBuzon.mText), IPC_NOWAIT) == -1){
+	miBuzon.mensajeUtil = tamanoMensaje;
+	if (msgsnd(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 0) == -1){
 		perror("server: msgsnd failed:");
 		exit(2);
    }else{
