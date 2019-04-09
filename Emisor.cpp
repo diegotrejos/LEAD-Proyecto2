@@ -2,7 +2,7 @@
 //#include "Buzon.h"
 
 
-void Emisor::creaArchivo(char tag, char* dato)
+void Emisor::creaArchivo(char tag, char* dato, int util_size)
 {
 
 char* nombre;	
@@ -16,15 +16,22 @@ char* nombre;
 
 
 	cout<<"creando archivo "<< nombre <<endl;
-	ofstream ofs (nombre, ios::out | ios::binary);
-	int tam = 128;
-	char* c = &dato[0];
-    ofs.write(c, tam);
-	ofs.close();
+	ofstream of (nombre, ios::out | ios::binary);
+	int tam = util_size;
+	//char* c = &dato[0];
+    of.write(dato, tam);
+	of.close();
+
+
+
+
+
+
+
 
 }
 
-void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda obtener el nombre del archivo para seguir escribiendo en el
+void Emisor::escribir(char tag, char* datos, int util_size)//neceisto q solo con el tag pueda obtener el nombre del archivo para seguir escribiendo en el
 {
 	// Esto escribe el binario en una imagen
 	//ofstream ofs (nombre, ios::out | ios::binary);
@@ -41,12 +48,12 @@ void Emisor::escribir(char tag, char* result)//neceisto q solo con el tag pueda 
 
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
 
-	ofstream ofs;  // Create Object of Ofstream
-    ofs.open (nombre, ios::app); // Append mode
-  	int tam = 128;
-	char* c = &result[0];
-    ofs.write(c, tam);
-    ofs.close(); // Closing the file
+	ofstream of;  // Create Object of Ofstream
+    of.open (nombre, ios::app); // Append mode
+  	int tam = util_size;
+//	char* c = &result[0];
+    of.write(datos, tam);
+    of.close(); // Closing the file
 
 }
 
@@ -78,16 +85,14 @@ void Emisor::envio()
 	//sockets
 }
 
-void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pruebas, 
+void Emisor::recibe(char tag,char* paq,  int paq_size)//argumentos para que sirba buzon, v esta para pruebas, 
 {
 	
 	bool nuevo= true;//decide si el tag es nuevo
 	
-	char tag = char(paq[128]);
+	
 	cout<<"tag: "<< tag <<" ."<<endl;
 	
-
-
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	{ 
         
@@ -119,17 +124,17 @@ void Emisor::recibe(char* paq)//argumentos para que sirba buzon, v esta para pru
 		nombre=rand()%127;
   		cout<<"EL archivo se va a llama: "<<endl;
 		*/
-		creaArchivo(tag,paq);
+		creaArchivo(tag,paq,paq_size);
 	}	
 		
 	else//si no es nuevo escribe en uno existente
 	{
 
-	escribir(tag,paq);
+	escribir(tag,paq,paq_size);
 	
 	}
 	//contador++;
-	cout<<"Termine paquete#"<<contador<<endl;	
+	//cout<<"Termine paquete#"<<contador<<endl;	
 
 }
 

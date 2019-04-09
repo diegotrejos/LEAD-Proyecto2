@@ -1,8 +1,7 @@
 #include "Buzon.h"
 
-Buzon::Buzon(int tipoMensaje, key_t key)
+Buzon::Buzon(key_t key)
 {
-	miBuzon.mType = tipoMensaje;
 	this->key = key;
 	setMsqid();
 }
@@ -21,21 +20,30 @@ void Buzon::setMsqid(){
 }
 
 
-void Buzon::setMensaje(char* mensaje){ 	
-	strcpy(miBuzon.mText, mensaje);
-	std::cout << "Mensaje a enviar: " << mensaje << std::endl;
+void Buzon::setMensaje(char* mensaje, int tamanoMensaje){ 	
+	memcpy(miBuzon.mText, mensaje, tamanoMensaje);
+	//std::cout << "Mensaje a enviar: \n" << mensaje << "\n
+	//std::cout << "Ademas el tamaño del paq es: " << tamanoMensaje << std::endl;
 }
 
 void Buzon::recibir(){
-	if (msgrcv(qId, &miBuzon, MAX, 0, 0) == -1)
+	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 1, 0);
+	int mensajeUtilBuzon = miBuzon.mensajeUtil;
+	if (size == -1)
 		perror("client: msgrcv failed:");
-   else
-		printf("client: Message received = %s\n", miBuzon.mText);
+	else{
+		//printf("client: Message received = %s\n", miBuzon.mText);
+		//printf("Mensaje util = %d\n", mensajeUtilBuzon);	
+	}
+		
+	
 }
 
-void Buzon::enviar(char* mensaje){
-	setMensaje(mensaje);
-	if (msgsnd(qId, &miBuzon, /*sizeof miBuzon.mText*/MAX, IPC_NOWAIT) == -1){
+void Buzon::enviar(char* mensaje, long tipoMensaje, int tamanoMensaje){
+	setMensaje(mensaje, tamanoMensaje);
+	miBuzon.mType = tipoMensaje;
+	miBuzon.mensajeUtil = tamanoMensaje;
+	if (msgsnd(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 0) == -1){
 		perror("server: msgsnd failed:");
 		exit(2);
    }else{

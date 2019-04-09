@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#define MAX 129
+#define MAX 128
 
 
 class Buzon{
@@ -15,19 +15,21 @@ class Buzon{
 		int qId;
 		key_t key;
 		
-		Buzon(int tipoMensaje, key_t key);
+		Buzon(key_t key);
 		//~Buzon();
 
 		typedef struct msgbuf{
-			int mType;
+			long mType;
 			char mText[MAX];
+			char tag;
+			int mensajeUtil;
 		}buzonMensajes;
 		
 		buzonMensajes miBuzon;
 		struct msqid_ds msgCtlBuf;
 		
-		void setMensaje(char* mensaje);
-		void enviar(char* mensaje);
+		void setMensaje(char* mensaje, int tamanoMensaje);
+		void enviar(char* mensaje, long tipoMensaje, int tamanoMensaje);
 		void recibir();
 		void setMsqid();
 		void sacarQueue();

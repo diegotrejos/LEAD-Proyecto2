@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -9,7 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-
+#include "Emisor.h"
 #include "Semaphore.h"
 #include "Buzon.h"
 
@@ -21,7 +20,7 @@ Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
 Buzon* bzn;
 
 
-// g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h MAIN.cpp -o prueba
+// g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h MAIN.cpp -o prueba
 // PARA CORRERLO: ./prueba imagenes/
 
 
@@ -52,65 +51,61 @@ void contratista(char const* imagen, const char tag)
 	ifstream::pos_type tam = ifs.tellg(); //saca el tamano 
 
 	vector<char> result(512); // crea vector de 512 bytes
-	//char* result;
 
 	ifs.seekg(0, ios::beg);
 
 	int contador = 0;
+	int cantidadMensajes = 0;
+	bzn->miBuzon.tag = tag;
 	while(contador+512 < int(tam)){
 		cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
 		ifs.read(&result[0], 512);
 		if(ifs){
-			cout << "LEI BIEN LOS DATOS" << endl;
+			//cout << "LEI BIEN LOS DATOS" << endl;
 		}
 		contador = contador + 512;
 		
-		cout << "VOY A INSERTAR LOS DATOS 1" << endl;
 		vector<char> vector1(result.begin(), result.begin() + 128);
-		vector1[128] = tag;
-		cout << "VOY A ENVIAR LOS DATOS 1" << endl;
-		bzn->enviar(vector1.data(), 1);
+		bzn->enviar(vector1.data(), 1, 128);
+		++cantidadMensajes;
 		
-		cout << "VOY A INSERTAR LOS DATOS 2" << endl;
 		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
-		vector2[128] = tag;
-		cout << "VOY A ENVIAR LOS DATOS 2" << endl;
-		bzn->enviar(vector2.data(), 1);
+		bzn->enviar(vector2.data(), 1, 128);
+		++cantidadMensajes;
 		
-		cout << "VOY A INSERTAR LOS DATOS 3" << endl;
 		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
-		vector3[128] = tag;
-		cout << "VOY A ENVIAR LOS DATOS 3" << endl;
-		bzn->enviar(vector3.data(), 1);
+		bzn->enviar(vector3.data(), 1, 128);
+		++cantidadMensajes;
 		
-		cout << "VOY A INSERTAR LOS DATOS 4" << endl;
 		vector<char> vector4(result.begin() + 384, result.begin() + 512);
-		vector4[128] = tag;
-		cout << "VOY A ENVIAR LOS DATOS 4" << endl;
-		bzn->enviar(vector4.data(), 1);
-		
+		bzn->enviar(vector4.data(), 1, 128);
+		++cantidadMensajes;
 	}
 	while (contador != int(tam)){ //cuando queda menos de 512 bytes
 		if((int(tam) - contador) > 127){
 			result.resize(128);
 			ifs.read(&result[0], 128);
 			if(ifs){
-				cout << "LEI BIEN LOS DATOS" << endl;
+				//cout << "LEI BIEN LOS DATOS" << endl;
 			}
 			contador  = contador + 128;
-			result[128] = tag;
-			bzn->enviar(result.data(), 1);
+			//result.insert(result.end(), tag);
+			bzn->enviar(result.data(), 1, 128);
+			++cantidadMensajes;
 		}else{
 			result.resize(int(tam)-contador);
-			ifs.read(&result[0], (int(tam)-contador));
+			int size = int(tam)-contador;
+			ifs.read(&result[0], size);
 			if(ifs){
-				cout << "LEI BIEN LOS DATOS" << endl;
+				cout << "LEI BIEN LOS DATOS2" << endl;
 			}
 			contador  = tam;
-			result[128] = tag;
-			bzn->enviar(result.data(), 1);
+			//result.insert(result.end(), tag);
+			bzn->enviar(result.data(), 1, size);
+			++cantidadMensajes;
 		}
 	}
+	printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
 	
 	contrat_ctrl->notify();
 	exit(0);
@@ -135,7 +130,6 @@ int lector(char* directorio){
 			contrat_ctrl->wait();
 			cout << i << endl;
 			if(fork() == 0){
-				//printf("%ld %s\n",imagenes[i]->d_ino, imagenes[i]->d_name);
 				contratista(strcat(directorio, imagenes[i]->d_name), char(i+33));
 				free(imagenes[i]);
             }
@@ -157,43 +151,42 @@ int main(int argc, char* argv[]){
 		cout << "Es necesario indicar el directorio" << endl;
 		return(1);
 	}
-	
-	/*
-     if(fork() == 0){ //Lector
-	 
-	 } else{ //Emisor
-	 
-	Emisor emi;
-	Buzon buzon_emisor ;
-	bool trabajando = true;
-	while(trabajando == true)
-		{	
-			
-			//buzon q no logre usar  que retorn el veector<char> imagen
-			vector<char> imagen=buzon_emisor.recibir();
-			emi.recibe(imagen);
-			trabajando=false;//algo para frenarlo hay q definir eso
- 		}	
-	 }
-	
-	*/
-	
-	//contenido de lector.
-	char* directorio;
-	directorio = argv[1];
-	//cout << "antes de crear semaforo" << endl;
-	contrat_ctrl = new Semaphore(2, KEY);
-	//cout << "después de crear semaforo" << endl;
-	bzn = new Buzon(KEY);
+	map<char,char*> archivos;//podria hacer mapas, tengo tag y nombre de archivo
+	int contador = 1;
+    if(fork() == 0){ //Lector
+		//contenido de lector.
+		char* directorio;
+		directorio = argv[1];
+		//cout << "antes de crear semaforo" << endl;
+		contrat_ctrl = new Semaphore(2, KEY);
+		//cout << "después de crear semaforo" << endl;
+		bzn = new Buzon(KEY);
 
-	int success = lector(directorio);
-	/*if(success != 0){
-		free(contrat_ctrl);
+		int success = lector(directorio);
+		/*if(success != 0){
+			free(contrat_ctrl);
+			free(bzn);
+			return 1;
+		}
 		free(bzn);
-		return 1;
+		free(contrat_ctrl);*/
+	 } else{ //Emisor
+		cout << "ARRANCÓ EL EMISOR" << endl; 
+		Buzon* bzn_emisor = new Buzon(KEY);
+		Emisor* emi = new Emisor();
+	
+		while(true){
+			
+			bzn_emisor->recibir();
+			cout << "Emisor le otro paquete" << endl;
+			
+			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
+						
+			
+		}
+		cout << "CERRÓ EL EMISOR" << endl; 
 	}
-	free(bzn
-	* );
-	free(contrat_ctrl);*/
+	
+	
 	return 0;
 }
