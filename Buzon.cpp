@@ -20,14 +20,14 @@ void Buzon::setMsqid(){
 }
 
 
-void Buzon::setMensaje(char* mensaje){ 	
-	size_t size = strlen(mensaje);
-	memcpy(miBuzon.mText, mensaje, size);
-	std::cout << "Mensaje a enviar: \n" << mensaje << "\nAdemas el tamaño del paq es: " << size << std::endl;
+void Buzon::setMensaje(char* mensaje, int tamanoMensaje){ 	
+	memcpy(miBuzon.mText, mensaje, tamanoMensaje);
+	//std::cout << "Mensaje a enviar: \n" << mensaje << "\n
+	std::cout << "Ademas el tamaño del paq es: " << tamanoMensaje << std::endl;
 }
 
 int Buzon::recibir(){
-	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText), 0, 0) ;
+	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText), 1, 0) ;
 	if (size == -1)
 		perror("client: msgrcv failed:");
 	else
@@ -35,8 +35,8 @@ int Buzon::recibir(){
 	return size;
 }
 
-void Buzon::enviar(char* mensaje, long tipoMensaje){
-	setMensaje(mensaje);
+void Buzon::enviar(char* mensaje, long tipoMensaje, int tamanoMensaje){
+	setMensaje(mensaje, tamanoMensaje);
 	miBuzon.mType = tipoMensaje;
 	if (msgsnd(qId, &miBuzon, sizeof (miBuzon.mText), IPC_NOWAIT) == -1){
 		perror("server: msgsnd failed:");

@@ -21,13 +21,14 @@ class Buzon{
 		typedef struct msgbuf{
 			long mType;
 			char mText[MAX];
+			char tag;
 		}buzonMensajes;
 		
 		buzonMensajes miBuzon;
 		struct msqid_ds msgCtlBuf;
 		
-		void setMensaje(char* mensaje);
-		void enviar(char* mensaje, long tipoMensaje);
+		void setMensaje(char* mensaje, int tamanoMensaje);
+		void enviar(char* mensaje, long tipoMensaje, int tamanoMensaje);
 		int recibir();
 		void setMsqid();
 		void sacarQueue();
