@@ -2,19 +2,40 @@
 //#include "Buzon.h"
 
 
-
-void Emisor::creaArchivo(char tag, char* nombre)
+void Emisor::creaArchivo(char tag, char* dato, int util_size)
 {
-	// Esto escribe el binario en una imagen
-	ofstream ofs (nombre, ios::out | ios::binary);
-	ofs.close();
+
+char* nombre;	
+	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
+	 { 
+        if(tag == itr->first)
+        {
+        	nombre = itr->second;
+        }
+    }
+
+
+	cout<<"creando archivo "<< nombre <<endl;
+	ofstream of (nombre, ios::out | ios::binary);
+	int tam = util_size;
+	//char* c = &dato[0];
+    of.write(dato, tam);
+	of.close();
+
+
+
+
+
+
+
 
 }
 
-void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag pueda obtener el nombre del archivo para seguir escribiendo en el
+void Emisor::escribir(char tag, char* datos, int util_size)//neceisto q solo con el tag pueda obtener el nombre del archivo para seguir escribiendo en el
 {
 	// Esto escribe el binario en una imagen
 	//ofstream ofs (nombre, ios::out | ios::binary);
+	//cout<<"continua escribiendo"<<endl;
 	char * nombre;
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
 	 { 
@@ -23,16 +44,18 @@ void Emisor::escribir(char tag, vector<char> result)//neceisto q solo con el tag
         	nombre = itr->second;
         }
     } 
+   
 
-	ofstream ofs;  // Create Object of Ofstream
-    ofs.open (nombre, ios::app); // Append mode
-  	int tam = result.size();
-	char* c = &result[0];
-    ofs.write(c, tam);
-    ofs.close(); // Closing the file
+    //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
+
+	ofstream of;  // Create Object of Ofstream
+    of.open (nombre, ios::app); // Append mode
+  	int tam = util_size;
+//	char* c = &result[0];
+    of.write(datos, tam);
+    of.close(); // Closing the file
 
 }
-
 
 
 Emisor::Emisor()
@@ -56,40 +79,62 @@ Emisor::Emisor()
 
 
 }*/
+
 void Emisor::envio()
 {
 	//sockets
 }
 
-
-void Emisor::recibe(vector<char> v)//argumentos para que sirba buzon, v esta para pruebas, 
+void Emisor::recibe(char tag,char* paq,  int paq_size)//argumentos para que sirba buzon, v esta para pruebas, 
 {
+	
 	bool nuevo= true;//decide si el tag es nuevo
 	
-
-	char tag = v[129];
-	v.erase(v.end());//borra el tag
+	
+	cout<<"tag: "<< tag <<" ."<<endl;
+	
 	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-	 { 
+	{ 
+        
         if(tag == itr->first)
         {
         	nuevo =false;
+        	//cout<<"tag: "<<tag<<" es igual a: "<<itr->first<<" que ya esta reistrado y tiene su arhcivo que se llama: "<<itr->second<<endl;;
         }
+
     } 
 
 
 	if(nuevo ==true)//si el tag es nuevo crea archivo
 	{
+		contador++;
 		
-		archivos.insert(pair<char,char*>(tag,v.data()));//el nombre del archivo es el resto del paquete
-		creaArchivo(tag, v.data());
+		string nombre_archivo="resultados/imagen";
+		string Ccontador=to_string(contador);
+		Ccontador=nombre_archivo+Ccontador;
+    	char* a = new char[Ccontador.size()];
+    	strcpy (a, Ccontador.c_str());
+    
 
+		archivos.insert(pair<char,char*>(tag,a));//el nombre del archivo es el resto del paquete
+
+		/*
+		srand(time(NULL));
+		int nombre;
+		nombre=rand()%127;
+  		cout<<"EL archivo se va a llama: "<<endl;
+		*/
+		creaArchivo(tag,paq,paq_size);
 	}	
+		
 	else//si no es nuevo escribe en uno existente
 	{
-	escribir(tag,v);
+
+	escribir(tag,paq,paq_size);
 	
-	}	
+	}
+	//contador++;
+	//cout<<"Termine paquete#"<<contador<<endl;	
 
 }
 

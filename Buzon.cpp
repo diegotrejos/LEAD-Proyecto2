@@ -23,20 +23,20 @@ void Buzon::setMsqid(){
 void Buzon::setMensaje(char* mensaje, int tamanoMensaje){ 	
 	memcpy(miBuzon.mText, mensaje, tamanoMensaje);
 	//std::cout << "Mensaje a enviar: \n" << mensaje << "\n
-	std::cout << "Ademas el tamaño del paq es: " << tamanoMensaje << std::endl;
+	//std::cout << "Ademas el tamaño del paq es: " << tamanoMensaje << std::endl;
 }
 
-int Buzon::recibir(){
+void Buzon::recibir(){
 	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 1, 0);
 	int mensajeUtilBuzon = miBuzon.mensajeUtil;
 	if (size == -1)
 		perror("client: msgrcv failed:");
 	else{
-		printf("client: Message received = %s\n", miBuzon.mText);
-		printf("Mensaje util = %d\n", mensajeUtilBuzon);	
+		//printf("client: Message received = %s\n", miBuzon.mText);
+		//printf("Mensaje util = %d\n", mensajeUtilBuzon);	
 	}
 		
-	return size;
+	
 }
 
 void Buzon::enviar(char* mensaje, long tipoMensaje, int tamanoMensaje){
