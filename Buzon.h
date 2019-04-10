@@ -16,7 +16,7 @@ class Buzon{
 		key_t key;
 		
 		Buzon(key_t key);
-		//~Buzon();
+		~Buzon();
 
 		typedef struct msgbuf{
 			long mType;

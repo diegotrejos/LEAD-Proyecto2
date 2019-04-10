@@ -20,10 +20,9 @@ Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
 Buzon* bzn;
 
 
-// g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h MAIN.cpp -o prueba
-// PARA CORRERLO: ./prueba imagenes/
-
-
+// g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h main.cpp -o clonador
+//La ejecución debe ser 
+//./clonador /path/del/directorio/
 
 int filter_function(const struct dirent *dir){
 	if(((strstr(dir->d_name, ".png") || strstr(dir->d_name, ".jpg")) || ((strstr(dir->d_name, ".jpeg")) || (strstr(dir->d_name, ".gif")))) || ((strstr(dir->d_name, ".JPEG")))){
@@ -46,7 +45,7 @@ bool test_directory(char* directorio){
 
 void contratista(char const* imagen, const char tag)
 {	
-	cout << imagen << " " << tag << endl;
+	//cout << imagen << " " << tag << endl;
 	ifstream ifs(imagen, ios::binary|ios::ate); //lee la imagen en bytes
 	ifstream::pos_type tam = ifs.tellg(); //saca el tamano 
 
@@ -58,7 +57,7 @@ void contratista(char const* imagen, const char tag)
 	int cantidadMensajes = 0;
 	bzn->miBuzon.tag = tag;
 	while(contador+512 < int(tam)){
-		cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
+		//cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
 		ifs.read(&result[0], 512);
 		if(ifs){
 			//cout << "LEI BIEN LOS DATOS" << endl;
@@ -97,7 +96,7 @@ void contratista(char const* imagen, const char tag)
 			int size = int(tam)-contador;
 			ifs.read(&result[0], size);
 			if(ifs){
-				cout << "LEI BIEN LOS DATOS2" << endl;
+				//cout << "LEI BIEN LOS DATOS2" << endl;
 			}
 			contador  = tam;
 			//result.insert(result.end(), tag);
@@ -105,7 +104,7 @@ void contratista(char const* imagen, const char tag)
 			++cantidadMensajes;
 		}
 	}
-	printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
+	//printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
 	
 	contrat_ctrl->notify();
 	exit(0);
@@ -124,11 +123,11 @@ int lector(char* directorio){
         perror("scandir");
     else
     {
-		cout << n << endl;
+		//cout << n << endl;
         for(i =0 ; i < n; ++i)
         {
 			contrat_ctrl->wait();
-			cout << i << endl;
+			//cout << i << endl;
 			if(fork() == 0){
 				contratista(strcat(directorio, imagenes[i]->d_name), char(i+33));
 				free(imagenes[i]);
@@ -139,52 +138,36 @@ int lector(char* directorio){
 	return 0;
 }
 
-
-
-
-
-
-
-
 int main(int argc, char* argv[]){
 	if(argc < 2){
 		cout << "Es necesario indicar el directorio" << endl;
 		return(1);
 	}
-	map<char,char*> archivos;//podria hacer mapas, tengo tag y nombre de archivo
-	int contador = 1;
     if(fork() == 0){ //Lector
 		//contenido de lector.
 		char* directorio;
 		directorio = argv[1];
-		//cout << "antes de crear semaforo" << endl;
 		contrat_ctrl = new Semaphore(2, KEY);
-		//cout << "después de crear semaforo" << endl;
 		bzn = new Buzon(KEY);
 
 		int success = lector(directorio);
-		/*if(success != 0){
+		if(success != 0){
 			free(contrat_ctrl);
 			free(bzn);
 			return 1;
 		}
 		free(bzn);
-		free(contrat_ctrl);*/
+		free(contrat_ctrl);
 	 } else{ //Emisor
-		cout << "ARRANCÓ EL EMISOR" << endl; 
+		//cout << "ARRANCÓ EL EMISOR" << endl; 
 		Buzon* bzn_emisor = new Buzon(KEY);
 		Emisor* emi = new Emisor();
 	
 		while(true){
-			
 			bzn_emisor->recibir();
-			cout << "Emisor le otro paquete" << endl;
-			
 			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
-						
-			
 		}
-		cout << "CERRÓ EL EMISOR" << endl; 
+		//cout << "CERRÓ EL EMISOR" << endl; 
 	}
 	
 	

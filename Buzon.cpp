@@ -6,17 +6,17 @@ Buzon::Buzon(key_t key)
 	setMsqid();
 }
 
-/*Buzon::~Buzon()
+Buzon::~Buzon()
 {
 	msgctl(qId,0,IPC_RMID);
-}*/
+}
 
 void Buzon::setMsqid(){
 	if ((qId = msgget( key, IPC_CREAT | 0666 )) == -1) {
 		perror( "server: Failed to create message queue:" );
 		exit(1);
    }
-	std::cout << "Mi QID es " << qId << std::endl;
+	//std::cout << "Mi QID es " << qId << std::endl;
 }
 
 
@@ -28,7 +28,7 @@ void Buzon::setMensaje(char* mensaje, int tamanoMensaje){
 
 void Buzon::recibir(){
 	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 1, 0);
-	int mensajeUtilBuzon = miBuzon.mensajeUtil;
+	//int mensajeUtilBuzon = miBuzon.mensajeUtil;
 	if (size == -1)
 		perror("client: msgrcv failed:");
 	else{
@@ -47,7 +47,7 @@ void Buzon::enviar(char* mensaje, long tipoMensaje, int tamanoMensaje){
 		perror("server: msgsnd failed:");
 		exit(2);
    }else{
-	   std::cout << "Mensaje enviado" << std::endl;
+	   //std::cout << "Mensaje enviado" << std::endl;
    }
 }
 
