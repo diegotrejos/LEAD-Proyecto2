@@ -20,63 +20,69 @@ int contador=0;//cuenta los archivos q van entrando
 void creaArchivo(char tag, char* dato, int util_size)//crea archivo nuevo
 {
 
-char* nombre;	
-	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-	 { 
+char* nombre;   
+    for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
+     { 
         if(tag == itr->first)
         {
-        	nombre = itr->second;
+            nombre = itr->second;
         }
     }
 
 
-	cout<<"creando archivo "<< nombre <<endl;
-	ofstream of (nombre, ios::out | ios::binary);
-	int tam = util_size;
-	//char* c = &dato[0];
+    cout<<"creando archivo "<< nombre <<endl;
+    ofstream of (nombre, ios::out | ios::binary);
+    int tam = util_size;
+    //char* c = &dato[0];
     of.write(dato, tam);
-	of.close();
+    of.close();
 }
 
 void escribir(char tag, char* datos, int util_size)//continua escribiendo en archivo existente
 {
-	char * nombre;
-	for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-	 { 
+    char * nombre;
+    for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
+     { 
         if(tag == itr->first)
         {
-        	nombre = itr->second;
+            nombre = itr->second;
         }
     } 
    
 
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
 
-	ofstream of;  // Create Object of Ofstream
+    ofstream of;  // Create Object of Ofstream
     of.open (nombre, ios::app); // Append mode
-  	int tam = util_size;
+    int tam = util_size;
 
     of.write(datos, tam);
     of.close(); // Closing the file
 
 }
 
-void recibe(char tag,char* paq,  int paq_size)
+void recibe()
 {
-	
-	Socket s1;	// se crea un socket de tipo SOCK_STREAM
-	cout << "Ingrese el puerto por el que se comunicaran\n";
-	int port = 0;
-	cin >> port;
-	char buffer[MAX];
-	
-   	s1.Bind(port);// puerto en el que va a recibir las solicitudes
-   	s1.Listen( 3 );
-   	
-   	Socket* s2 = s1.Accept();// se espera una conexion
-	printf("Conexion Aceptada \n");
-	s2->Read( buffer, MAX );
     
+    Socket s1;  // se crea un socket de tipo SOCK_STREAM
+    cout << "Ingrese el puerto por el que se comunicaran\n";
+    int port = 0;
+    cin >> port;
+    char buffer[MAX];
+    
+    s1.Bind(port);// puerto en el que va a recibir las solicitudes
+    s1.Listen( 3 );
+    
+    Socket* s2 = s1.Accept();// se espera una conexion
+    printf("Conexion Aceptada \n");
+    s2->Read( buffer, MAX );
+    
+    extraeDatos(buffer);
+    
+}
+
+void archivar(char tag,char* paq,  int paq_size)
+  {
     bool nuevo= true;//decide si el tag es nuevo
         
     cout<<"tag: "<< tag <<" ."<<endl;
@@ -116,8 +122,9 @@ void recibe(char tag,char* paq,  int paq_size)
     
     }
     //contador++;
-
 }
+
+
 void extraeDatos(char* datos)
 {
 char tag = datos[132];
@@ -129,7 +136,7 @@ tam_util =  atoi(part);
 cout<<"Size util: "<<tam_util<<endl;
 
 
-recibe(tag,datos,tam_util);
+archivar(tag,datos,tam_util);
 
 }
 
@@ -153,6 +160,8 @@ while(true)
 
     return 0;
 }
+
+
 
 
 
