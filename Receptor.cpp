@@ -117,9 +117,8 @@ int main()
 
 while(true)
 {
-
-    //sockets retornen esos parametros para recibe
-   //recibe(char tag,char* paq,  int paq_size, archivos)
+	//sockets retornen esos parametros para recibe
+	//recibe(char tag,char* paq,  int paq_size, archivos)
 }
 
     return 0;
