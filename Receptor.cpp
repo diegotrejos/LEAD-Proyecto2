@@ -104,17 +104,18 @@ void archivar(char tag,char* paq,  int paq_size)
 }
 void extraeDatos(char* datos)
 {
-	char tag = datos[129];
-	cout<<"tag: "<<tag<<endl;
-	int tam_util= 0;
-	char* part= new char[3];
-	memcpy(part, datos + 130 /* Offset */, 132 /* Length */);
-	tam_util =  atoi(part);
-	cout<<"Size util: "<<tam_util<<endl;
+    char tag = datos[128];
+    cout<<"tag: "<<tag<<endl;
+    int tam_util= 0;
+    char part[3];
+    memcpy(part, datos + 129 /* Offset */, 3 /* Length */);
+    tam_util =  atoi(part);
+    cout<<"Size util: "<<tam_util<<endl;
 
-	archivar(tag,datos,tam_util);
+   archivar(tag,datos,tam_util);
 
 }
+
 
 
 void recibe()
