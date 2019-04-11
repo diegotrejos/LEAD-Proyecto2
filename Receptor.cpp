@@ -104,15 +104,15 @@ void archivar(char tag,char* paq,  int paq_size)
 }
 void extraeDatos(char* datos)
 {
-char tag = datos[129];
-cout<<"tag: "<<tag<<endl;
-int tam_util= 0;
-char* part= new char[3];
-memcpy(part, datos + 130 /* Offset */, 132 /* Length */);
-tam_util =  atoi(part);
-cout<<"Size util: "<<tam_util<<endl;
+	char tag = datos[129];
+	cout<<"tag: "<<tag<<endl;
+	int tam_util= 0;
+	char* part= new char[3];
+	memcpy(part, datos + 130 /* Offset */, 132 /* Length */);
+	tam_util =  atoi(part);
+	cout<<"Size util: "<<tam_util<<endl;
 
-archivar(tag,datos,tam_util);
+	archivar(tag,datos,tam_util);
 
 }
 
@@ -150,14 +150,14 @@ void recibe()
 int main()
 {
 
-//codigo q inicializa socket
+	//codigo q inicializa socket
 
-while(true)
-{
+	while(true)
+	{
 
-    //sockets retornen esos parametros para recibe
-   //recibe(char tag,char* paq,  int paq_size, archivos)
-}
+		//sockets retornen esos parametros para recibe
+	   //recibe(char tag,char* paq,  int paq_size, archivos)
+	}
 
     return 0;
 }

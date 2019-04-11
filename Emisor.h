@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sstream>
 #include <iterator>
+#include "Socket.h"
 
 using namespace std;
 class Emisor
@@ -17,11 +18,8 @@ class Emisor
 public:
 	Emisor();
 	void recibe( char tag,char* paq, int paq_size);//recibe datos del buzon
-	void envio();//para sockets despues
-	void escribir(char tag, char* datos, int size_paq);//escribe en archivo ya abierto
-	void creaArchivo(char tag,char* datos, int size_paq);//abre archivo nuevo
+	void envio(char* buffer); // Envio de paquete con socket
 	~Emisor();
-	map<char,char*> archivos;//podria hacer mapas, tengo tag y nombre de archivo
-	int contador=0;
-
+	Socket s;
+	void buildSocket();
 };
