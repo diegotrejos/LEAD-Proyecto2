@@ -60,27 +60,6 @@ void escribir(char tag, char* datos, int util_size)//continua escribiendo en arc
     of.close(); // Closing the file
 
 }
-
-void recibe()
-{
-    
-    Socket s1;  // se crea un socket de tipo SOCK_STREAM
-    cout << "Ingrese el puerto por el que se comunicaran\n";
-    int port = 0;
-    cin >> port;
-    char buffer[MAX];
-    
-    s1.Bind(port);// puerto en el que va a recibir las solicitudes
-    s1.Listen( 3 );
-    
-    Socket* s2 = s1.Accept();// se espera una conexion
-    printf("Conexion Aceptada \n");
-    s2->Read( buffer, MAX );
-    
-    extraeDatos(buffer);
-    
-}
-
 void archivar(char tag,char* paq,  int paq_size)
   {
     bool nuevo= true;//decide si el tag es nuevo
@@ -123,8 +102,6 @@ void archivar(char tag,char* paq,  int paq_size)
     }
     //contador++;
 }
-
-
 void extraeDatos(char* datos)
 {
 char tag = datos[132];
@@ -139,6 +116,31 @@ cout<<"Size util: "<<tam_util<<endl;
 archivar(tag,datos,tam_util);
 
 }
+
+
+void recibe()
+{
+    
+    Socket s1;  // se crea un socket de tipo SOCK_STREAM
+    cout << "Ingrese el puerto por el que se comunicaran\n";
+    int port = 0;
+    cin >> port;
+    char buffer[MAX];
+    
+    s1.Bind(port);// puerto en el que va a recibir las solicitudes
+    s1.Listen( 3 );
+    
+    Socket* s2 = s1.Accept();// se espera una conexion
+    printf("Conexion Aceptada \n");
+    s2->Read( buffer, MAX );
+    
+    extraeDatos(buffer);
+    
+}
+
+
+
+
 
 
 
