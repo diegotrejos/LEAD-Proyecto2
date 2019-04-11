@@ -120,16 +120,17 @@ void recibe(char tag,char* paq,  int paq_size)
 }
 void extraeDatos(char* datos)
 {
-char tag = datos[0];
+char tag = datos[132];
 cout<<"tag: "<<tag<<endl;
 int tam_util= 0;
 char* part= new char[3];
-memcpy(part, datos + 1 /* Offset */, 4 /* Length */);
+memcpy(part, datos + 129 /* Offset */, 131 /* Length */);
 tam_util =  atoi(part);
 cout<<"Size util: "<<tam_util<<endl;
 
 
 recibe(tag,datos,tam_util);
+
 }
 
 
