@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sstream>
 #include <iterator>
+#include "Socket.h"
 
 using namespace std;
 map<char,char*> archivos;//regista los archivos existentes
@@ -61,6 +62,18 @@ void escribir(char tag, char* datos, int util_size)//continua escribiendo en arc
 
 void recibe(char tag,char* paq,  int paq_size)
 {
+	
+	Socket s1();	// se crea un socket de tipo SOCK_STREAM
+	cout << "Ingrese el puerto por el que se comunicaran\n";
+	int port = 0;
+	cin >> port;
+	
+   	s1.Bind(port);// puerto en el que va a recibir las solicitudes
+   	s1.Listen( 5 );
+	
+	
+	
+	
     
     bool nuevo= true;//decide si el tag es nuevo
         
