@@ -8,6 +8,10 @@ Semaphore::Semaphore(int n, key_t key){
 		exit(1);
 	}
 	count = n;
+	while(count > 0){
+		notify();
+		--count;
+	}
 	semctl(id,1,SETVAL,count);
 }
 
@@ -21,7 +25,6 @@ void Semaphore::notify(){
     z.sem_op= +1;  // Para el signal solo se cambia esto por +1
     z.sem_flg = IPC_NOWAIT;
     semop(id,&z,1);
-    ++count;
 }
 
 void Semaphore::wait(){
@@ -30,5 +33,4 @@ void Semaphore::wait(){
     z.sem_op= -1;  // Para el signal solo se cambia esto por +1
     z.sem_flg = IPC_NOWAIT;
     semop(id,&z,1);
-    --count;
 }

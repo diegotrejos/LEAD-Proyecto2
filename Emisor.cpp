@@ -1,5 +1,7 @@
 #include "Emisor.h"
+#include "Socket.h"
 //#include "Buzon.h"
+#define PORT 5050
 
 
 void Emisor::creaArchivo(char tag, char* dato, int util_size)
@@ -46,10 +48,16 @@ Emisor::Emisor()
 
 }
 
-void Emisor::envio()
+
+/*void Emisor::envio()
 {
 	//sockets
-}
+	Socket s();
+	cout << "Ingrese la direccion IP del servidor\n";
+	string IP;
+	cin >> IP;
+	s.Connect( IP.c_str(), PORT );// Se realiza la conexion segun la IP de la máquina
+}*/
 
 void Emisor::recibe(char tag,char* paq,  int paq_size)//argumentos para que sirba buzon, v esta para pruebas, 
 {

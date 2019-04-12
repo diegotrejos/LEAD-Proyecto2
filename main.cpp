@@ -7,7 +7,6 @@
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <thread>
 
 #include "Emisor.h"
 #include "Semaphore.h"
@@ -19,20 +18,11 @@ using namespace std;
 
 Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
 Buzon* bzn;
-Emisor* emi;
+
 
 // g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h main.cpp -o clonador
 //La ejecución debe ser 
 //./clonador /path/del/directorio/
-void recibe(int x){
-	x += 1;
-	cout << std::this_thread::get_id() << endl;
-	Buzon* bzn_emisor = new Buzon(KEY);
-	while(true){
-		bzn_emisor->recibir();
-		emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
-	}
-}
 
 int filter_function(const struct dirent *dir){
 	if(((strstr(dir->d_name, ".png") || strstr(dir->d_name, ".jpg")) || ((strstr(dir->d_name, ".jpeg")) || (strstr(dir->d_name, ".gif")))) || ((strstr(dir->d_name, ".JPEG")))){
@@ -170,15 +160,13 @@ int main(int argc, char* argv[]){
 		free(contrat_ctrl);
 	 } else{ //Emisor
 		//cout << "ARRANCÓ EL EMISOR" << endl; 
-		//Buzon* bzn_emisor = new Buzon(KEY);
-		emi = new Emisor();
-		
-		std::thread recibiendo(recibe, 0);
-		recibiendo.join();
-		//while(true){
-		//	bzn_emisor->recibir();
-		//	emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
-		//}
+		Buzon* bzn_emisor = new Buzon(KEY);
+		Emisor* emi = new Emisor();
+	
+		while(true){
+			bzn_emisor->recibir();
+			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
+		}
 		//cout << "CERRÓ EL EMISOR" << endl; 
 	}
 	
