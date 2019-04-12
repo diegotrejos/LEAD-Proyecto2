@@ -5,7 +5,6 @@
 #include <dirent.h>
 #include <fstream>
 #include <vector>
-#include <pthread.h>
 #include <map>
 #include <stdlib.h> 
 #include <string.h>
@@ -15,7 +14,8 @@
 #include <queue>
 #include "Semaphore.cpp"
 #include "Socket.h"
-#define MAX 132
+#include "Buzon.h"
+#define MAX 133
 
 #define KEY 0xB57414
 
@@ -24,6 +24,7 @@ typedef struct{
     char data[128];
     char tag;
     int utiles;
+    char ultimo;
 } bytes;
 
 map<char, int> tags;//regista los tags con sus hilos
@@ -85,7 +86,7 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
     char tag = b.tag;
     char* data = b.data;
     int utiles = b.utiles;
-    bool nuevo= true;//decide si el tag es nuevo
+    bool nuevo=true;//decide si el tag es nuevo
     int hilo=0;    
     //cout<<"tag: "<< tag <<" ."<<endl;
     
@@ -114,7 +115,8 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
 
         tags.insert(pair<char,int>(tag,contador));
         contador++;
-        std::thread worker(hilo_escribir, tag, data, utiles, nombre);
+        //std::thread worker(hilo_escribir, tag, data, utiles, nombre);
+        //worker.detach();
         //el nombre del archivo es el resto del paquete
         //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
         //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
@@ -139,13 +141,14 @@ void extraeDatos(char* datos)
     memcpy(part, datos + 129 /* Offset */, 3 /* Length */);
     memcpy(data, datos, 128);
     tam_util = atoi(part);
+    char fin = datos[132];
     cout<<"Size util: "<<tam_util<<endl;
 
     bytes b;
     strcpy(b.data, data);
     b.tag = tag;
     b.utiles = tam_util;
-
+    b.ultimo = fin;
     archivar(b);//AQUI envia por el buzon
     
 }
@@ -185,13 +188,13 @@ int main()
     //thread_semaphores = new vector<Semaphore>();
     //threads = vector<std::thread>();
     //main_semaphore = new Semaphore(0,KEY);
-    std::thread recolector(recibe, 1);
-    recolector.detach();
-    std::thread separador(archivar);
-    separador.detach();
-    while(!finished){
+    //std::thread recolector(recibe, 1);
+    //recolector.detach();
+    //std::thread separador(archivar);
+    //separador.detach();
+    //while(!finished){
 
-    }
+    //}
     return 0;
 }
 
