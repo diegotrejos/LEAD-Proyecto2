@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <fstream>
 #include <vector>
+#include <pthread.h>
 #include <map>
 #include <stdlib.h> 
 #include <string.h>
@@ -12,7 +13,6 @@
 #include <iterator>
 #include <thread>
 #include <queue>
-#include "Buzon.h"
 #include "Semaphore.cpp"
 #include "Socket.h"
 #define MAX 132
@@ -21,20 +21,20 @@
 
 using namespace std;
 typedef struct{
-    char[128] data;
+    char data[128];
     char tag;
     int utiles;
 } bytes;
 
-vector<char> tags;//regista los archivos existentes
+map<char, int> tags;//regista los tags con sus hilos
 int contador=0;//cuenta los archivos q van entrando
 bool finished;
-std::queue<bytes>* myqueue;
+/*std::queue<bytes>* myqueue;
 Semaphore* main_semaphore;
 std::vector<std::queue<bytes>> thread_queues;
 std::vector<Semaphore> thread_semaphores;
 std::vector<std::thread> threads;
-
+*/
 
 void creaArchivo(char tag, char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
@@ -62,19 +62,40 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 
 }
 
-
-void archivar(char tag,char* paq,  int paq_size) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
+void hilo_escribir(char tag,char* dato,int util_size,char* nombre)
 {
+    
+   char* nombre_de_archivo= nombre;
+   
+    creaArchivo(tag, dato, util_size, nombre);
+    bool imagen_terminada = false;
+    
+    while(!imagen_terminada)
+    {
+    
+    //buzon receive() con vector y datos  
+    //escribir(miMensaje.tag,miMensaje.data,miMensaje.util, nombre);
+    //if(miMensaje.utiles < 128) bool imagen_terminada = true;
+    }
+}
+
+
+void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
+{
+    char tag = b.tag;
+    char* data = b.data;
+    int utiles = b.utiles;
     bool nuevo= true;//decide si el tag es nuevo
-        
+    int hilo=0;    
     //cout<<"tag: "<< tag <<" ."<<endl;
     
     for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
     { 
         
-        if(tag == itr)
+        if(tag == itr->first)
         {
             nuevo =false;
+            hilo=itr->second;
             //cout<<"tag: "<<tag<<" es igual a: "<<itr->first<<" que ya esta reistrado y tiene su arhcivo que se llama: "<<itr->second<<endl;;
         }
     } 
@@ -84,21 +105,24 @@ void archivar(char tag,char* paq,  int paq_size) //este mae se va a encargar de 
     { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
         //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
         // thread_queues[pos].detach()
-        contador++;
+        
         string nombre_archivo="resultados/imagen";
         string Ccontador=to_string(contador);
         Ccontador=nombre_archivo+Ccontador;
-        char* nombre[Ccontador.size()];
+        char nombre[Ccontador.size()];
         strcpy (nombre, Ccontador.c_str());
 
-        archivos.insert(pair<char,char*>(tag,a));//el nombre del archivo es el resto del paquete
+        tags.insert(pair<char,int>(tag,contador));
+        contador++;
+        //el nombre del archivo es el resto del paquete
         //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
-        
+        //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
     }   
         
     else//si no es nuevo escribe en uno existente
     {
-     //envia con buzon (tag,data,dara_util)    
+        cout<< "Su hilo es:"<< hilo << endl;
+     //envia con buzon (tag,data,dara_util)   
     }
     //contador++;
 }
@@ -120,7 +144,8 @@ void extraeDatos(char* datos)
     strcpy(b.data, data);
     b.tag = tag;
     b.utiles = tam_util;
-    archivar(char tag,char* paq,  int paq_size);//AQUI envia por el buzon
+
+    archivar(b);//AQUI envia por el buzon
     
 }
 
@@ -146,22 +171,6 @@ void recibe(int espera)
     }
 }
 
-void hilo_escribir(char tag, char* nom )
-{
-    
-    nombre= nom;
-   
-    creaArchivo(tag, dato, util_size, nombre)
-    bool imagen_terminada = false;
-    
-    //while(!imagen_terminada)
-    //{
-    //
-    //buzon receive() con vector y datos  
-    //escribir(miMensaje.tag,miMensaje.data,miMensaje.util, nombre);
-    //if(miMensaje.utiles < 128) bool imagen_terminada = true;
-    //}
-}
 
 
 
@@ -184,4 +193,8 @@ int main()
     }*/
     return 0;
 }
+
+
+
+
 
