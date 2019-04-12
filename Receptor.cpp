@@ -10,25 +10,35 @@
 #include <string.h>
 #include <sstream>
 #include <iterator>
+#include <thread>
+#include <queue>
+#include "Buzon.h"
+#include "Semaphore.cpp"
 #include "Socket.h"
 #define MAX 132
 
+#define KEY 0xB57414
+
 using namespace std;
-map<char,char*> archivos;//regista los archivos existentes
+typedef struct{
+    char[128] data;
+    char tag;
+    int utiles;
+} bytes;
+
+vector<char> tags;//regista los archivos existentes
 int contador=0;//cuenta los archivos q van entrando
+bool finished;
+std::queue<bytes>* myqueue;
+Semaphore* main_semaphore;
+std::vector<std::queue<bytes>> thread_queues;
+std::vector<Semaphore> thread_semaphores;
+std::vector<std::thread> threads;
 
-void creaArchivo(char tag, char* dato, int util_size)//crea archivo nuevo
+
+void creaArchivo(char tag, char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
-
-char* nombre;   
-    for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-     { 
-        if(tag == itr->first)
-        {
-            nombre = itr->second;
-        }
-    }
-
+   
 
     cout<<"creando archivo "<< nombre <<endl;
     ofstream of (nombre, ios::out | ios::binary);
@@ -38,18 +48,9 @@ char* nombre;
     of.close();
 }
 
-void escribir(char tag, char* datos, int util_size)//continua escribiendo en archivo existente
+void escribir(char tag, char* datos, int util_size, char* nombre)//continua escribiendo en archivo existente
 {
-    char * nombre;
-    for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-     { 
-        if(tag == itr->first)
-        {
-            nombre = itr->second;
-        }
-    } 
    
-
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
 
     ofstream of;  // Create Object of Ofstream
@@ -61,9 +62,71 @@ void escribir(char tag, char* datos, int util_size)//continua escribiendo en arc
 
 }
 
-void recibe()
+
+void archivar(char tag,char* paq,  int paq_size) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
 {
+    bool nuevo= true;//decide si el tag es nuevo
+        
+    //cout<<"tag: "<< tag <<" ."<<endl;
     
+    for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
+    { 
+        
+        if(tag == itr)
+        {
+            nuevo =false;
+            //cout<<"tag: "<<tag<<" es igual a: "<<itr->first<<" que ya esta reistrado y tiene su arhcivo que se llama: "<<itr->second<<endl;;
+        }
+    } 
+
+
+    if(nuevo ==true)//si el tag es nuevo crea archivo*************************8
+    { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
+        //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
+        // thread_queues[pos].detach()
+        contador++;
+        string nombre_archivo="resultados/imagen";
+        string Ccontador=to_string(contador);
+        Ccontador=nombre_archivo+Ccontador;
+        char* nombre[Ccontador.size()];
+        strcpy (nombre, Ccontador.c_str());
+
+        archivos.insert(pair<char,char*>(tag,a));//el nombre del archivo es el resto del paquete
+        //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
+        
+    }   
+        
+    else//si no es nuevo escribe en uno existente
+    {
+     //envia con buzon (tag,data,dara_util)    
+    }
+    //contador++;
+}
+
+
+void extraeDatos(char* datos)
+{
+    char tag = datos[128];
+    cout<<"tag: "<<tag<<endl;
+    int tam_util= 0;
+    char part[3];
+    char data[128];
+    memcpy(part, datos + 129 /* Offset */, 3 /* Length */);
+    memcpy(data, datos, 128);
+    tam_util = atoi(part);
+    cout<<"Size util: "<<tam_util<<endl;
+
+    bytes b;
+    strcpy(b.data, data);
+    b.tag = tag;
+    b.utiles = tam_util;
+    archivar(char tag,char* paq,  int paq_size);//AQUI envia por el buzon
+    
+}
+
+
+void recibe(int espera)
+{
     Socket s1;  // se crea un socket de tipo SOCK_STREAM
     cout << "Ingrese el puerto por el que se comunicaran\n";
     int port = 0;
@@ -75,99 +138,50 @@ void recibe()
     
     Socket* s2 = s1.Accept();// se espera una conexion
     printf("Conexion Aceptada \n");
-    s2->Read( buffer, MAX );
-    
-    extraeDatos(buffer);
-    
-}
-
-void archivar(char tag,char* paq,  int paq_size)
-  {
-    bool nuevo= true;//decide si el tag es nuevo
-        
-    cout<<"tag: "<< tag <<" ."<<endl;
-    
-    for (auto itr = archivos.begin(); itr != archivos.end(); ++itr)//revisa que no exista este tag
-    { 
-        
-        if(tag == itr->first)
-        {
-            nuevo =false;
-            //cout<<"tag: "<<tag<<" es igual a: "<<itr->first<<" que ya esta reistrado y tiene su arhcivo que se llama: "<<itr->second<<endl;;
-        }
-
-    } 
-
-
-    if(nuevo ==true)//si el tag es nuevo crea archivo
+    while(true)
     {
-        contador++;
-        
-        string nombre_archivo="resultados/imagen";
-        string Ccontador=to_string(contador);
-        Ccontador=nombre_archivo+Ccontador;
-        char* a = new char[Ccontador.size()];
-        strcpy (a, Ccontador.c_str());
-    
-
-        archivos.insert(pair<char,char*>(tag,a));//el nombre del archivo es el resto del paquete
-
-        creaArchivo(tag,paq,paq_size);
-    }   
-        
-    else//si no es nuevo escribe en uno existente
-    {
-
-    escribir(tag,paq,paq_size);
-    
+        s2->Read( buffer, MAX );
+        std::this_thread::sleep_for(std::chrono::seconds(espera));
+        extraeDatos(buffer);
     }
-    //contador++;
 }
 
-
-void extraeDatos(char* datos)
+void hilo_escribir(char tag, char* nom )
 {
-char tag = datos[132];
-cout<<"tag: "<<tag<<endl;
-int tam_util= 0;
-char* part= new char[3];
-memcpy(part, datos + 129 /* Offset */, 131 /* Length */);
-tam_util =  atoi(part);
-cout<<"Size util: "<<tam_util<<endl;
-
-
-archivar(tag,datos,tam_util);
-
+    
+    nombre= nom;
+   
+    creaArchivo(tag, dato, util_size, nombre)
+    bool imagen_terminada = false;
+    
+    //while(!imagen_terminada)
+    //{
+    //
+    //buzon receive() con vector y datos  
+    //escribir(miMensaje.tag,miMensaje.data,miMensaje.util, nombre);
+    //if(miMensaje.utiles < 128) bool imagen_terminada = true;
+    //}
 }
-
-
-
 
 
 
 
 int main()
 {
+  recibe(0);
 
-//codigo q inicializa socket
+  /*  myqueue = new queue<bytes>();
+    thread_queues = new vector<std::queue<bytes>>();
+    thread_semaphores = new vector<Semaphore>();
+    threads = vector<std::thread>();
+    main_semaphore = new Semaphore(0,KEY);
+    std::thread recolector(recibe, 1);
+    recolector.detach();
+    std::thread separador(archivar);
+    separador.detach();
+    while(!finished){
 
-while(true)
-{
-
-    //sockets retornen esos parametros para recibe
-   //recibe(char tag,char* paq,  int paq_size, archivos)
-}
-
+    }*/
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
 
