@@ -1,6 +1,6 @@
 #include "Emisor.h"
 //#include "Buzon.h"
-#define PAQSIZE 132
+#define PAQSIZE 133
 
 
 Emisor::Emisor()
@@ -38,6 +38,7 @@ void Emisor::recibe(char tag,char* paq,  int paq_size)
 		paq_size /= 10;
 		--pos;
 	}
+	buffer[132] = paq[128];
 	envio(buffer);
 }
 

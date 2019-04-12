@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#define MAX 128
+#define MAX 129
 
 
 class Buzon{

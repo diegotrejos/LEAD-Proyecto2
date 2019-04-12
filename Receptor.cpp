@@ -111,6 +111,7 @@ void extraeDatos(char* datos)
     memcpy(part, datos + 129 /* Offset */, 3 /* Length */);
     tam_util =  atoi(part);
     cout<<"Size util: "<<tam_util<<endl;
+    char esUltimo = datos[132];
 
    archivar(tag,datos,tam_util);
 

@@ -65,19 +65,23 @@ void contratista(char const* imagen, const char tag)
 		contador = contador + 512;
 		
 		vector<char> vector1(result.begin(), result.begin() + 128);
-		bzn->enviar(vector1.data(), 1, 128);
+		vector1.insert(vector1.end(), 'f');
+		bzn->enviar(vector1.data(), 1, 129);
 		++cantidadMensajes;
 		
 		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
-		bzn->enviar(vector2.data(), 1, 128);
+		vector2.insert(vector2.end(), 'f');
+		bzn->enviar(vector2.data(), 1, 129);
 		++cantidadMensajes;
 		
 		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
-		bzn->enviar(vector3.data(), 1, 128);
+		vector3.insert(vector3.end(), 'f');
+		bzn->enviar(vector3.data(), 1, 129);
 		++cantidadMensajes;
 		
 		vector<char> vector4(result.begin() + 384, result.begin() + 512);
-		bzn->enviar(vector4.data(), 1, 128);
+		vector4.insert(vector4.end(), 'f');
+		bzn->enviar(vector4.data(), 1, 129);
 		++cantidadMensajes;
 	}
 	while (contador != int(tam)){ //cuando queda menos de 512 bytes
@@ -88,8 +92,8 @@ void contratista(char const* imagen, const char tag)
 				//cout << "LEI BIEN LOS DATOS" << endl;
 			}
 			contador  = contador + 128;
-			//result.insert(result.end(), tag);
-			bzn->enviar(result.data(), 1, 128);
+			result.insert(result.end(), 'f');
+			bzn->enviar(result.data(), 1, 129);
 			++cantidadMensajes;
 		}else{
 			result.resize(int(tam)-contador);
@@ -99,8 +103,8 @@ void contratista(char const* imagen, const char tag)
 				//cout << "LEI BIEN LOS DATOS2" << endl;
 			}
 			contador  = tam;
-			//result.insert(result.end(), tag);
-			bzn->enviar(result.data(), 1, size);
+			result.insert(result.end(), 't');
+			bzn->enviar(result.data(), 1, size+1);
 			++cantidadMensajes;
 		}
 	}
