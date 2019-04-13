@@ -61,6 +61,7 @@ void escribir(char* datos, int util_size, char* nombre)//continua escribiendo en
 
 void hilo_escribir(long archivo)
 {	
+	cout << "ENTRE EN ESCRIBIR CON EL HILO " << archivo << endl;
     Buzon* buzThread = new Buzon(KEY_B); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
 	//char tag = buzThread->miBuzon.mText[128]; //tag del mensaje
@@ -120,11 +121,14 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
     if(nuevo==true)//si el tag es nuevo crea archivo*************************8
     {
         tags.insert(pair<char,int>(tag,contadorArchivos));
-        contadorArchivos++;
         cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
+        cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
         std::thread worker(hilo_escribir, contadorArchivos);
+        cout << "LUEGO DE CREAR HILO DE ESCRITURA PARA EL ARCHIVO " << contadorArchivos << endl;
         worker.detach();
+        contadorArchivos++;
+        cout << "LLEGUE LUEGO DEL DETACH DE HILOS" << endl;
         //el nombre del archivo es el resto del paquete
         //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
         //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
@@ -190,10 +194,12 @@ int main()
     //thread_semaphores = new vector<Semaphore>();
     //threads = vector<std::thread>();
     //main_semaphore = new Semaphore(0,KEY);
+    //delete(buz);
+    //delete(aux);
     std::thread recolector(recibe, 1);
     recolector.detach();
     std::thread separador(extraeDatos);
-    separador.detach();
+    separador.join();
     while(!finished){
 
     }
