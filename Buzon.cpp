@@ -26,8 +26,8 @@ void Buzon::setMensaje(char* mensaje, int tamanoMensaje){
 	//std::cout << "Ademas el tamaño del paq es: " << tamanoMensaje << std::endl;
 }
 
-void Buzon::recibir(){
-	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), 1, 0);
+void Buzon::recibir(long tipoMensaje){
+	int size = msgrcv(qId, &miBuzon, sizeof (miBuzon.mText) + sizeof (int) + sizeof (long) + sizeof (char), tipoMensaje, 0);
 	//int mensajeUtilBuzon = miBuzon.mensajeUtil;
 	if (size == -1)
 		perror("client: msgrcv failed:");

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#define MAX 129
+#define MAX 133
 
 
 class Buzon{
@@ -30,7 +30,7 @@ class Buzon{
 		
 		void setMensaje(char* mensaje, int tamanoMensaje);
 		void enviar(char* mensaje, long tipoMensaje, int tamanoMensaje);
-		void recibir();
+		void recibir(long tipoMensaje);
 		void setMsqid();
 		void sacarQueue();
 };
