@@ -5,7 +5,6 @@
 #include <dirent.h>
 #include <fstream>
 #include <vector>
-#include <pthread.h>
 #include <map>
 #include <stdlib.h> 
 #include <string.h>
@@ -15,7 +14,10 @@
 #include <queue>
 #include "Semaphore.cpp"
 #include "Socket.h"
-#define MAX 132
+#include "Buzon.h"
+
+
+#define MAX 133
 
 #define KEY 0xB57414
 
@@ -24,6 +26,7 @@ typedef struct{
     char data[128];
     char tag;
     int utiles;
+    char ultimo;
 } bytes;
 
 map<char, int> tags;//regista los tags con sus hilos
@@ -36,7 +39,7 @@ std::vector<Semaphore> thread_semaphores;
 std::vector<std::thread> threads;
 */
 
-void creaArchivo(char tag, char* dato, int util_size, char *nombre)//crea archivo nuevo
+void creaArchivo(char tag,  const char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
    
 
@@ -62,12 +65,32 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 
 }
 
-void hilo_escribir(char tag,char* dato,int util_size,char* nombre)
+void hilo_escribir(bytes const  &b)
 {
+    int contador=999;
+    for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
+    { 
+        
+        if(b.tag == itr->first)
+        {
+         
+            contador=itr->second;
+            cout<<"tag: "<<b.tag<<" en el hilo: "<<itr->second<<endl;
+        }
+    }
+
+       
+        string nombre_archivo="resultados/imagen";
+        string Ccontador=to_string(contador);
+        Ccontador=nombre_archivo+Ccontador;
+        char nombre[Ccontador.size()];
+        strcpy (nombre, Ccontador.c_str());
+
+
     
-   char* nombre_de_archivo= nombre;
+  
    
-    creaArchivo(tag, dato, util_size, nombre);
+    creaArchivo(b.tag, b.data, b.utiles, nombre);
     bool imagen_terminada = false;
     
     while(!imagen_terminada)
@@ -85,7 +108,7 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
     char tag = b.tag;
     char* data = b.data;
     int utiles = b.utiles;
-    bool nuevo= true;//decide si el tag es nuevo
+    bool nuevo=true;//decide si el tag es nuevo
     int hilo=0;    
     //cout<<"tag: "<< tag <<" ."<<endl;
     
@@ -105,15 +128,12 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
     { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
         //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
         // thread_queues[pos].detach()
-        
-        string nombre_archivo="resultados/imagen";
-        string Ccontador=to_string(contador);
-        Ccontador=nombre_archivo+Ccontador;
-        char nombre[Ccontador.size()];
-        strcpy (nombre, Ccontador.c_str());
+      
 
         tags.insert(pair<char,int>(tag,contador));
         contador++;
+        std::thread worker(hilo_escribir,b);
+        worker.detach();
         //el nombre del archivo es el resto del paquete
         //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
         //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
@@ -138,13 +158,14 @@ void extraeDatos(char* datos)
     memcpy(part, datos + 129 /* Offset */, 3 /* Length */);
     memcpy(data, datos, 128);
     tam_util = atoi(part);
+    char fin = datos[132];
     cout<<"Size util: "<<tam_util<<endl;
 
     bytes b;
     strcpy(b.data, data);
     b.tag = tag;
     b.utiles = tam_util;
-
+    b.ultimo = fin;
     archivar(b);//AQUI envia por el buzon
     
 }
@@ -166,8 +187,8 @@ void recibe(int espera)
     while(true)
     {
         s2->Read( buffer, MAX );
-        std::this_thread::sleep_for(std::chrono::seconds(espera));
         extraeDatos(buffer);
+        std::this_thread::sleep_for(std::chrono::seconds(espera));
     }
 }
 
@@ -177,20 +198,20 @@ void recibe(int espera)
 
 int main()
 {
-  recibe(0);
+  //recibe(0);
 
-  /*  myqueue = new queue<bytes>();
-    thread_queues = new vector<std::queue<bytes>>();
-    thread_semaphores = new vector<Semaphore>();
-    threads = vector<std::thread>();
-    main_semaphore = new Semaphore(0,KEY);
-    std::thread recolector(recibe, 1);
-    recolector.detach();
-    std::thread separador(archivar);
-    separador.detach();
-    while(!finished){
+    //myqueue = new queue<bytes>();
+    //thread_queues = new vector<std::queue<bytes>>();
+    //thread_semaphores = new vector<Semaphore>();
+    //threads = vector<std::thread>();
+    //main_semaphore = new Semaphore(0,KEY);
+    //std::thread recolector(recibe, 1);
+    //recolector.detach();
+    //std::thread separador(archivar);
+    //separador.detach();
+    //while(!finished){
 
-    }*/
+    //}
     return 0;
 }
 
