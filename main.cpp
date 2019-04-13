@@ -104,7 +104,7 @@ void contratista(char const* imagen, const char tag)
 			}
 			contador  = tam;
 			result.insert(result.end(), 't');
-			bzn->enviar(result.data(), 1, size+1);
+			bzn->enviar(result.data(), 1, size + 1);
 			++cantidadMensajes;
 		}
 	}
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]){
 		Emisor* emi = new Emisor();
 	
 		while(true){
-			bzn_emisor->recibir();
+			bzn_emisor->recibir(1); // Mensajes tipo 1
 			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
 		}
 		//cout << "CERRÓ EL EMISOR" << endl; 
