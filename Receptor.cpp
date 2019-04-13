@@ -27,10 +27,10 @@ typedef struct{
     char ultimo;
 } bytes;
 
+long tipoMenMap = 1;
 Buzon* buz = new Buzon(KEY); // Buzon que va a guardar paquetes recibidos
-map<char, int> tags; // Regista los tags con sus hilos
-int contador = 0; //Cuenta los archivos q van entrando
-long hilo = 1;
+map<char, long> tags; // Registra los tags con sus hilos
+long contadorArchivos = 1; // Cuenta los archivos que van entrando
 bool finished;
 std::vector<std::thread> threads;
 
@@ -90,28 +90,27 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
         if(tag == itr->first)
         {
             nuevo = false;
-            hilo = itr->second;
+            tipoMenMap = itr->second;
         }
     } 
 
 
     if(nuevo == true)//si el tag es nuevo crea archivo*************************8
-    { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
-        //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
+    { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo
         // thread_queues[pos].detach()
         
         string nombre_archivo = "resultados/imagen";
-        string Ccontador = to_string(contador);
+        string Ccontador = to_string(contadorArchivos);
         Ccontador = nombre_archivo + Ccontador;
         char nombre[Ccontador.size()];
         strcpy (nombre, Ccontador.c_str());
 
-        tags.insert(pair<char,int>(tag,contador));
-        contador++;
+        tags.insert(pair<char,int>(tag, contadorArchivos));
+        buz->enviar(data, contadorArchivos, utiles); // contador lleva cuantos mensajes se han creado, 
+													 // entonces los envia de ese tipo
+        contadorArchivos++;
+     
         
-        
-        ++hilo; // Si es un tag nuevo se deberia aumentar el tipo de mensaje
-        buz->enviar(data, hilo /* HILO ES EL TAG, ENTONCES EL TIPO DE MENSAJE*/, utiles);
         
         //std::thread worker(hilo_escribir, hilo, data, utiles, nombre);
         //worker.detach();
@@ -120,8 +119,8 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
         
     else//si no es nuevo escribe en uno existente
     {
-        cout<< "Su hilo es: "<< hilo << endl;
-        buz->enviar(data, hilo /* HILO ES EL TAG, ENTONCES EL TIPO DE MENSAJE*/, utiles);
+        cout<< "Su hilo es: "<< contadorArchivos << endl;
+        buz->enviar(data, tipoMenMap, utiles);
     }
     //contador++;
 }
