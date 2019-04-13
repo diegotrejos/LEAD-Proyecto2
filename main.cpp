@@ -45,7 +45,6 @@ bool test_directory(char* directorio){
 
 void contratista(char const* imagen, const char tag)
 {	
-	//cout << imagen << " " << tag << endl;
 	ifstream ifs(imagen, ios::binary|ios::ate); //lee la imagen en bytes
 	ifstream::pos_type tam = ifs.tellg(); //saca el tamano 
 
@@ -57,11 +56,8 @@ void contratista(char const* imagen, const char tag)
 	int cantidadMensajes = 0;
 	bzn->miBuzon.tag = tag;
 	while(contador+512 < int(tam)){
-		//cout << "EL CONTADOR ES: " << contador << " Y EL TAM ES: " << int(tam) << endl;
 		ifs.read(&result[0], 512);
-		if(ifs){
-			//cout << "LEI BIEN LOS DATOS" << endl;
-		}
+
 		contador = contador + 512;
 		
 		vector<char> vector1(result.begin(), result.begin() + 128);
@@ -88,9 +84,7 @@ void contratista(char const* imagen, const char tag)
 		if((int(tam) - contador) > 127){
 			result.resize(128);
 			ifs.read(&result[0], 128);
-			if(ifs){
-				//cout << "LEI BIEN LOS DATOS" << endl;
-			}
+
 			contador  = contador + 128;
 			result.insert(result.end(), 'f');
 			bzn->enviar(result.data(), 1, 129);
@@ -99,16 +93,14 @@ void contratista(char const* imagen, const char tag)
 			result.resize(int(tam)-contador);
 			int size = int(tam)-contador;
 			ifs.read(&result[0], size);
-			if(ifs){
-				//cout << "LEI BIEN LOS DATOS2" << endl;
-			}
+
 			contador  = tam;
 			result.insert(result.end(), 't');
 			bzn->enviar(result.data(), 1, size + 1);
 			++cantidadMensajes;
 		}
 	}
-	//printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
+	printf("Cantidad de mensajes enviados: %d\n", cantidadMensajes);
 	
 	contrat_ctrl->notify();
 	exit(0);
@@ -147,6 +139,7 @@ int main(int argc, char* argv[]){
 		cout << "Es necesario indicar el directorio" << endl;
 		return(1);
 	}
+	//delete(bzn);
     if(fork() == 0){ //Lector
 		//contenido de lector.
 		char* directorio;
@@ -166,10 +159,13 @@ int main(int argc, char* argv[]){
 		//cout << "ARRANCÓ EL EMISOR" << endl; 
 		Buzon* bzn_emisor = new Buzon(KEY);
 		Emisor* emi = new Emisor();
-	
+		//delete (bzn_emisor);
+		int recibeEmisor = 1;
 		while(true){
 			bzn_emisor->recibir(1); // Mensajes tipo 1
 			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
+			cout << "Recibe y se enviara de emisor: " << recibeEmisor << endl;
+			++recibeEmisor;
 		}
 		//cout << "CERRÓ EL EMISOR" << endl; 
 	}

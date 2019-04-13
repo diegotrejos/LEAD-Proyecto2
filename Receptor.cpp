@@ -39,7 +39,7 @@ std::vector<std::thread> threads;
 
 void creaArchivo(const char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
-    cout << "creando archivo " << nombre << endl;
+    cout << "\ncreando archivo: " << nombre << endl;
     ofstream of (nombre, ios::out | ios::binary);
     //char* c = &dato[0];
     of.write(dato, util_size);
@@ -63,10 +63,9 @@ void hilo_escribir(long archivo)
 {	
 	cout << "ENTRE EN ESCRIBIR CON EL HILO " << archivo << endl;
     Buzon* buzThread = new Buzon(KEY_B); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
-	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
-	//char tag = buzThread->miBuzon.mText[128]; //tag del mensaje
-	//char* data = data del mtext // Esto literalmente es mText hasta lo que diga la vara del tamano
-	char* data = new char[128]; //data util del buzon.
+	buzThread->recibir(archivo); // Era necesario pasar el id del tipo de datos para poder recibir el mensaje
+
+	char data[128]; //data util del buzon
 	char part[3];
 	memcpy(part, buzThread->miBuzon.mText + 129, 3);
 	int bytesUtiles = atoi(part);
@@ -80,31 +79,33 @@ void hilo_escribir(long archivo)
    
     creaArchivo(data, bytesUtiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
     bool imagen_terminada = false;
+    int leido = 2;
     while(!imagen_terminada)
     {
-		buzThread->recibir(archivo); // Recibe solo mensajes de tipo tipoMensaje
+		buzThread->recibir(archivo); // Recibe solo mensajes de tipo archivo
+		cout << "Thread: " << archivo << " recibir: " << leido << std::endl;
+		++leido;
 		memcpy(part, buzThread->miBuzon.mText + 129, 3);
 		bytesUtiles = atoi(part);
+		cout << "Bytes utiles: " << bytesUtiles << endl;
 		char fin = buzThread->miBuzon.mText[132];
 		memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
 		escribir(data, bytesUtiles, nombre);
 		if(fin == 't'){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
+			cout << "Imagen terminada\n";
 		}
     }
 }
 
 
-void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
+void archivar(char* buffer) // Revisa tags
 {
-	cout << "ENTRE EN ARCHIVAR" << endl;
 	
     char tag = buffer[128];
-    //char* data = b.data;
-    //int utiles = b.utiles;
-    bool nuevo=true;//decide si el tag es nuevo
-    long hilo=0;    
-    //cout<<"tag: "<< tag <<" ."<<endl;
+    bool nuevo=true; // Decide si el tag es nuevo
+    long hilo = 0;
+
     
     for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
     { 
@@ -123,25 +124,17 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
         tags.insert(pair<char,int>(tag,contadorArchivos));
         //cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
-        cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
+        //cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
         std::thread worker(hilo_escribir, contadorArchivos);
-        cout << "LUEGO DE CREAR HILO DE ESCRITURA PARA EL ARCHIVO " << contadorArchivos << endl;
+        //cout << "LUEGO DE CREAR HILO DE ESCRITURA PARA EL ARCHIVO " << contadorArchivos << endl;
         worker.detach();
         contadorArchivos++;
-        cout << "LLEGUE LUEGO DEL DETACH DE HILOS" << endl;
-        //el nombre del archivo es el resto del paquete
-        //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
-        //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
     }   
         
-    else//si no es nuevo escribe en uno existente
+    else //si no es nuevo escribe en uno existente
     {
-        //cout<< "Su hilo es:"<< hilo << endl;
-        cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, hilo, MAX_M);
-     //envia con buzon (tag,data,dara_util)   
     }
-    //contador++;
 }
 
 
@@ -152,7 +145,8 @@ void extraeDatos()
     while(true){
 		//cout << "ESPERANDO A RECIBIR DATO EN EL BUZON DE ARCHIVAR" << endl;
 		buzon_arch->recibir(1);
-		cout << "DATO RECIBIDO AL BUZON DE ARCHIVAR #" << contador << endl;
+		//cout << "Arvhivar: " << contador << endl;
+		//++contador;
 		//cout << buzon_arch->miBuzon.mText << endl;
 		archivar(buzon_arch->miBuzon.mText);
     }
@@ -177,9 +171,9 @@ void recibe(int espera)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read( buffer, MAX_M );
-        //cout << buffer << endl;
         aux->enviar(buffer, 1, MAX_M);
-        cout << "DATO ENVIADO AL BUZON DE ARCHIVAR #" << contador << endl;
+        //cout << "DATO ENVIADO AL BUZON DE ARCHIVAR: " << contador << endl;
+        ++contador;
         //archivar(buffer);
         //std::this_thread::sleep_for(std::chrono::seconds(espera));
     }

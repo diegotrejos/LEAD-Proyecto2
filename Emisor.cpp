@@ -24,7 +24,7 @@ void Emisor::envio(char* buffer) // con sockets hacia receptor
 	int st = this->s.Write(buffer, PAQSIZE);
 }
 
-void Emisor::recibe(char tag,char* paq,  int paq_size)
+void Emisor::recibe(char tag, char* paq,  int paq_size)
 {
 	char buffer[PAQSIZE];
 	memcpy(buffer, paq, 128);
@@ -32,9 +32,7 @@ void Emisor::recibe(char tag,char* paq,  int paq_size)
 	int pos = 131;
 	for (int i = 0; i < 3; ++i){
 		int digit = paq_size % 10;	
-		//std::cout << digit << std::endl;
 		sprintf (&buffer[pos], "%d", digit);
-		std::cout << buffer[pos] << std::endl;
 		paq_size /= 10;
 		--pos;
 	}
