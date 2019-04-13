@@ -35,7 +35,7 @@ bool finished;
 std::vector<std::thread> threads;
 
 
-void creaArchivo(char tag,  const char* dato, int util_size, char *nombre)//crea archivo nuevo
+void creaArchivo(const char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
     cout << "creando archivo " << nombre << endl;
     ofstream of (nombre, ios::out | ios::binary);
@@ -44,7 +44,7 @@ void creaArchivo(char tag,  const char* dato, int util_size, char *nombre)//crea
     of.close();
 }
 
-void escribir(char tag, char* datos, int util_size, char* nombre)//continua escribiendo en archivo existente
+void escribir(char* datos, int util_size, char* nombre)//continua escribiendo en archivo existente
 {
    
     //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
@@ -58,45 +58,33 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 }
 
 void hilo_escribir(long archivo)
-{
-	int miTipoMensaje = 0;
-	for (auto itr = tags.begin(); itr != tags.end(); ++itr)
-    { 
-        
-        if(tag == itr->first)
-        {
-         
-            miTipoMensaje = itr->second;
-            // cout<<"tag: "<<b.tag<<" en el hilo: "<<itr->second<<endl;
-        }
-    }
-	
+{	
     Buzon* buzThread = new Buzon(KEY); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
-	char tag = buzThread->miBuzon.mText[128];
+	//char tag = buzThread->miBuzon.mText[128]; //tag del mensaje
 	//char* data = data del mtext // Esto literalmente es mText hasta lo que diga la vara del tamano
-	
-	
-
+	char* data = new char[128]; //data util del buzon.
+	char part[3];
+	memcpy(part, buzThread->miBuzon.mText + 129, 3);
+	int bytesUtiles = atoi(part);
+    memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
     
-       
     string nombre_archivo="resultados/imagen";
     string Ccontador=to_string(archivo); //el tipo de datos del archivo es igual al numero de archivo.
     Ccontador=nombre_archivo+Ccontador;
     char nombre[Ccontador.size()];
     strcpy (nombre, Ccontador.c_str());
    
-    creaArchivo(tag, data, utiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
+    creaArchivo(data, bytesUtiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
     bool imagen_terminada = false;
     while(!imagen_terminada)
     {
-		buzThread->recibir(tipoMensaje); // Recibe solo mensajes de tipo tipoMensaje
-		char part[3];
-		memcpy(part, datos + 129, 3);
-		int bytesUtiles = atoi(part);
-		char fin = datos[132];
+		buzThread->recibir(archivo); // Recibe solo mensajes de tipo tipoMensaje
+		memcpy(part, buzThread->miBuzon.mText + 129, 3);
+		bytesUtiles = atoi(part);
 		char fin = buzThread->miBuzon.mText[132];
-		//escribir(tag, buzThread->miBuzon.mText, utiles, nombre);
+		memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
+		escribir(data, bytesUtiles, nombre);
 		if(fin == 't'){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
 		}
@@ -110,7 +98,7 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
     //char* data = b.data;
     //int utiles = b.utiles;
     bool nuevo=true;//decide si el tag es nuevo
-    //int hilo=0;    
+    long hilo=0;    
     //cout<<"tag: "<< tag <<" ."<<endl;
     
     for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
@@ -143,7 +131,8 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
         
     else//si no es nuevo escribe en uno existente
     {
-        cout<< "Su hilo es:"<< hilo << endl;
+        //cout<< "Su hilo es:"<< hilo << endl;
+        buz->enviar(buffer, hilo, MAX_M);
      //envia con buzon (tag,data,dara_util)   
     }
     //contador++;
@@ -207,8 +196,8 @@ int main()
     //main_semaphore = new Semaphore(0,KEY);
     std::thread recolector(recibe, 1);
     recolector.detach();
-    std::thread separador(archivar);
-    separador.detach();
+    //std::thread separador(archivar);
+    //separador.detach();
     while(!finished){
 
     }
