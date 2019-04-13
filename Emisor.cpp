@@ -26,17 +26,25 @@ void Emisor::envio(char* buffer) // con sockets hacia receptor
 
 void Emisor::recibe(char tag, char* paq,  int paq_size)
 {
-	char buffer[PAQSIZE];
+	char buffer[133];
+	cout << "Emisor recibi: " << paq << "y tiene tamano util: " << paq_size << endl;
 	memcpy(buffer, paq, 128);
 	buffer[128] = tag;
+	buffer[129] = 'a';
+	buffer[130] = 'a';
+	buffer[131] = 'a';
+	cout << "Bufer antes de meter tam: " << buffer << endl;
 	int pos = 131;
 	for (int i = 0; i < 3; ++i){
-		int digit = paq_size % 10;	
+		int digit = paq_size % 10;
+		cout << "Digit: " << digit << endl;	
 		sprintf (&buffer[pos], "%d", digit);
+		cout << "Armando buffer: " << buffer << endl;
 		paq_size /= 10;
 		--pos;
 	}
 	buffer[132] = paq[128];
+	cout << "Emisor voy a enviar: " << buffer << endl;
 	envio(buffer);
 }
 

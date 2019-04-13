@@ -107,29 +107,30 @@ void contratista(char const* imagen, const char tag)
 }
 
 int lector(char* directorio){
-	if(!test_directory(directorio)){ // Revisa si el posible abrir el directorio
+	/*if(!test_directory(directorio)){ // Revisa si el posible abrir el directorio
 		std:: cout << "Fallo al abrir el directorio\n";
 		return 1;
-	}
+	}*/
 	
 	struct dirent** imagenes; // Estructura que guarda la posicion de memoria y el nombre de las imagenes
-	int n,i;
-	n = scandir(directorio, &imagenes, filter_function, versionsort);
+	int n = 0;
+	int i;
+	//n = scandir(directorio, &imagenes, filter_function, versionsort);
 	if (n < 0)
         perror("scandir");
     else
     {
 		//cout << n << endl;
-        for(i =0 ; i < n; ++i)
+        for(i =0 ; i < /*n*/ 1; ++i)
         {
 			contrat_ctrl->wait();
 			//cout << i << endl;
 			if(fork() == 0){
-				contratista(strcat(directorio, imagenes[i]->d_name), char(i+33));
-				free(imagenes[i]);
+				contratista(strcat(directorio, "hola.txt"), char(i+33));
+				//free(imagenes[i]);
             }
         }
-        free(imagenes);
+        //free(imagenes);
     }
 	return 0;
 }
@@ -163,8 +164,9 @@ int main(int argc, char* argv[]){
 		int recibeEmisor = 1;
 		while(true){
 			bzn_emisor->recibir(1); // Mensajes tipo 1
-			emi->recibe(bzn_emisor->miBuzon.tag,bzn_emisor->miBuzon.mText,bzn_emisor->miBuzon.mensajeUtil);
+			emi->recibe(bzn_emisor->miBuzon.tag, bzn_emisor->miBuzon.mText, bzn_emisor->miBuzon.mensajeUtil);
 			cout << "Recibe y se enviara de emisor: " << recibeEmisor << endl;
+			cout << bzn_emisor->miBuzon.tag << "  " << bzn_emisor->miBuzon.mText << "   " << bzn_emisor->miBuzon.mensajeUtil << endl;
 			++recibeEmisor;
 		}
 		//cout << "CERRÓ EL EMISOR" << endl; 

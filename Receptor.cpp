@@ -64,12 +64,12 @@ void hilo_escribir(long archivo)
 	cout << "ENTRE EN ESCRIBIR CON EL HILO " << archivo << endl;
     Buzon* buzThread = new Buzon(KEY_B); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	buzThread->recibir(archivo); // Era necesario pasar el id del tipo de datos para poder recibir el mensaje
-
-	char data[128]; //data util del buzon
+	cout << "Recibir del thread: " << buzThread->miBuzon.mText << endl;
 	char part[3];
 	memcpy(part, buzThread->miBuzon.mText + 129, 3);
+	cout << "Part: " << part << endl;
 	int bytesUtiles = atoi(part);
-    memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
+	cout << "Hilo datos utiles: " << bytesUtiles << endl;
     
     string nombre_archivo="resultados/imagen";
     string Ccontador=to_string(archivo); //el tipo de datos del archivo es igual al numero de archivo.
@@ -77,7 +77,7 @@ void hilo_escribir(long archivo)
     char nombre[Ccontador.size()];
     strcpy (nombre, Ccontador.c_str());
    
-    creaArchivo(data, bytesUtiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
+    creaArchivo(buzThread->miBuzon.mText, bytesUtiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
     bool imagen_terminada = false;
     int leido = 2;
     while(!imagen_terminada)
@@ -89,8 +89,8 @@ void hilo_escribir(long archivo)
 		bytesUtiles = atoi(part);
 		cout << "Bytes utiles: " << bytesUtiles << endl;
 		char fin = buzThread->miBuzon.mText[132];
-		memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
-		escribir(data, bytesUtiles, nombre);
+		//memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
+		//escribir(data, bytesUtiles, nombre);
 		if(fin == 't'){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
 			cout << "Imagen terminada\n";
@@ -124,6 +124,7 @@ void archivar(char* buffer) // Revisa tags
         tags.insert(pair<char,int>(tag,contadorArchivos));
         //cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
+        cout << "Mandar a buzon del thread: " << buffer << endl;
         //cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
         std::thread worker(hilo_escribir, contadorArchivos);
         //cout << "LUEGO DE CREAR HILO DE ESCRITURA PARA EL ARCHIVO " << contadorArchivos << endl;
@@ -148,6 +149,7 @@ void extraeDatos()
 		//cout << "Arvhivar: " << contador << endl;
 		//++contador;
 		//cout << buzon_arch->miBuzon.mText << endl;
+		cout << "Voy a archivar: " << buzon_arch->miBuzon.mText << endl;
 		archivar(buzon_arch->miBuzon.mText);
     }
 }
@@ -171,6 +173,7 @@ void recibe(int espera)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read( buffer, MAX_M );
+        cout << "RECEPTOR ME LLEGO: " << buffer << endl;
         aux->enviar(buffer, 1, MAX_M);
         //cout << "DATO ENVIADO AL BUZON DE ARCHIVAR: " << contador << endl;
         ++contador;
