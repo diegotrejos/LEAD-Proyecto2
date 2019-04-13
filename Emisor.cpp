@@ -32,7 +32,7 @@ void Emisor::recibe(char tag,char* paq,  int paq_size)
 	int pos = 131;
 	for (int i = 0; i < 3; ++i){
 		int digit = paq_size % 10;	
-		std::cout << digit << std::endl;
+		//std::cout << digit << std::endl;
 		sprintf (&buffer[pos], "%d", digit);
 		std::cout << buffer[pos] << std::endl;
 		paq_size /= 10;

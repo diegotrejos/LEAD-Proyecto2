@@ -121,7 +121,7 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
     if(nuevo==true)//si el tag es nuevo crea archivo*************************8
     {
         tags.insert(pair<char,int>(tag,contadorArchivos));
-        cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
+        //cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
         cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
         std::thread worker(hilo_escribir, contadorArchivos);
@@ -148,10 +148,11 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
 void extraeDatos()
 {
 	Buzon* buzon_arch = new Buzon(KEY_C);
+	int contador = 0;
     while(true){
-		cout << "ESPERANDO A RECIBIR DATO EN EL BUZON DE ARCHIVAR" << endl;
+		//cout << "ESPERANDO A RECIBIR DATO EN EL BUZON DE ARCHIVAR" << endl;
 		buzon_arch->recibir(1);
-		cout << "DATO RECIBIDO" << endl;
+		cout << "DATO RECIBIDO AL BUZON DE ARCHIVAR #" << contador << endl;
 		//cout << buzon_arch->miBuzon.mText << endl;
 		archivar(buzon_arch->miBuzon.mText);
     }
@@ -159,7 +160,7 @@ void extraeDatos()
 
 void recibe(int espera)
 {
-	cout << "ENTRE EN RECIBE" << endl;
+	//cout << "ENTRE EN RECIBE" << endl;
     Socket s1;  // se crea un socket de tipo SOCK_STREAM
     cout << "Ingrese el puerto por el que se comunicaran\n";
     int port = 0;
@@ -171,12 +172,14 @@ void recibe(int espera)
     
     Socket* s2 = s1.Accept();// se espera una conexion
     printf("Conexion Aceptada \n");
+    int contador = 0;
     while(true)
     {
-		cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
+		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read( buffer, MAX_M );
         //cout << buffer << endl;
         aux->enviar(buffer, 1, MAX_M);
+        cout << "DATO ENVIADO AL BUZON DE ARCHIVAR #" << contador << endl;
         //archivar(buffer);
         //std::this_thread::sleep_for(std::chrono::seconds(espera));
     }
