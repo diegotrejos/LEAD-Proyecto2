@@ -59,26 +59,26 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 
 void hilo_escribir(long archivo)
 {
-    Buzon* buzThread = new Buzon(KEY); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
-	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
-	//char tag = tag del mtext
-	//char* data = data del mtext
-	//int utiles = datos utiles del mtext
-	//char fin = fin del mtext
-	/*int contador=999;
-	
-	NOTA: CREO QUE CON EL PARAMETRO ARCHIVO YA NO HACE FALTA ESTO PORQUE DIRECTAMENTE TRABAJAMOS EN EL TIPO DE DATOS
-	QUE CREAMOS PARA ESTE HILO
-    for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
+	int miTipoMensaje = 0;
+	for (auto itr = tags.begin(); itr != tags.end(); ++itr)
     { 
         
         if(tag == itr->first)
         {
          
-            contador=itr->second;
-            cout<<"tag: "<<b.tag<<" en el hilo: "<<itr->second<<endl;
+            miTipoMensaje = itr->second;
+            // cout<<"tag: "<<b.tag<<" en el hilo: "<<itr->second<<endl;
         }
-    }*/
+    }
+	
+    Buzon* buzThread = new Buzon(KEY); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
+	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
+	char tag = buzThread->miBuzon.mText[128];
+	//char* data = data del mtext // Esto literalmente es mText hasta lo que diga la vara del tamano
+	
+	
+
+    
        
     string nombre_archivo="resultados/imagen";
     string Ccontador=to_string(archivo); //el tipo de datos del archivo es igual al numero de archivo.
@@ -88,17 +88,15 @@ void hilo_escribir(long archivo)
    
     creaArchivo(tag, data, utiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
     bool imagen_terminada = false;
-    //char fin; // Para saber si ya es el ultimo paquete
     while(!imagen_terminada)
     {
 		buzThread->recibir(tipoMensaje); // Recibe solo mensajes de tipo tipoMensaje
-		//tag = tag del mtext
-		//data = data del mtext
-		//utiles = datos utiles del mtext
-		//fin = fin del mtext
-		escribir(tag, data, utiles, nombre);
-		
-		fin = buzThread->miBuzon.mText[128];
+		char part[3];
+		memcpy(part, datos + 129, 3);
+		int bytesUtiles = atoi(part);
+		char fin = datos[132];
+		char fin = buzThread->miBuzon.mText[132];
+		//escribir(tag, buzThread->miBuzon.mText, utiles, nombre);
 		if(fin == 't'){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
 		}
