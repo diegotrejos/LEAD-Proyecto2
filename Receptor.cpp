@@ -39,7 +39,7 @@ std::vector<Semaphore> thread_semaphores;
 std::vector<std::thread> threads;
 */
 
-void creaArchivo(char tag, char* dato, int util_size, char *nombre)//crea archivo nuevo
+void creaArchivo(char tag,  const char* dato, int util_size, char *nombre)//crea archivo nuevo
 {
    
 
