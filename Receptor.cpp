@@ -17,7 +17,8 @@
 #include "Buzon.h"
 
 #define MAX_M 133
-#define KEY 0xB73404
+#define KEY_B 0xB73404
+#define KEY_C 0xB60513
 
 using namespace std;
 /*typedef struct{
@@ -28,7 +29,8 @@ using namespace std;
 } bytes;*/
 
 long tipoMenMap = 1;
-Buzon* buz = new Buzon(KEY); // Buzon que va a guardar paquetes recibidos
+Buzon* buz = new Buzon(KEY_B); // Buzon que va a guardar paquetes recibidos
+Buzon* aux = new Buzon(KEY_C); // Buzon para comunicar de un hilo a otro.
 map<char, long> tags; // Registra los tags con sus hilos
 long contadorArchivos = 1; // Cuenta los archivos que van entrando
 bool finished;
@@ -59,7 +61,7 @@ void escribir(char* datos, int util_size, char* nombre)//continua escribiendo en
 
 void hilo_escribir(long archivo)
 {	
-    Buzon* buzThread = new Buzon(KEY); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
+    Buzon* buzThread = new Buzon(KEY_B); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	buzThread->recibir(archivo); //Era necesario pasar el id del tipo de datos para poder recibir el mensaje
 	//char tag = buzThread->miBuzon.mText[128]; //tag del mensaje
 	//char* data = data del mtext // Esto literalmente es mText hasta lo que diga la vara del tamano
@@ -94,6 +96,8 @@ void hilo_escribir(long archivo)
 
 void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
 {
+	cout << "ENTRE EN ARCHIVAR" << endl;
+	
     char tag = buffer[128];
     //char* data = b.data;
     //int utiles = b.utiles;
@@ -114,13 +118,10 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
 
 
     if(nuevo==true)//si el tag es nuevo crea archivo*************************8
-    { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
-        //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
-        // thread_queues[pos].detach()
-      
-
+    {
         tags.insert(pair<char,int>(tag,contadorArchivos));
         contadorArchivos++;
+        cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
         std::thread worker(hilo_escribir, contadorArchivos);
         worker.detach();
@@ -132,6 +133,7 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
     else//si no es nuevo escribe en uno existente
     {
         //cout<< "Su hilo es:"<< hilo << endl;
+        cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, hilo, MAX_M);
      //envia con buzon (tag,data,dara_util)   
     }
@@ -139,35 +141,26 @@ void archivar(char* buffer) //este mae se va a encargar de ver si el tag es nuev
 }
 
 
-/*void extraeDatos(char* datos)
+void extraeDatos()
 {
-    char tag = datos[128];
-    cout<<"tag: "<<tag<<endl;
-    int tam_util= 0;
-    char part[3];
-    char data[128];
-    memcpy(part, datos + 129, 3);
-    memcpy(data, datos, 128);
-    tam_util = atoi(part);
-    char fin = datos[132];
-    cout<<"Size util: "<<tam_util<<endl;
-
-    bytes b;
-    strcpy(b.data, data);
-    b.tag = tag;
-    b.utiles = tam_util;
-    b.ultimo = fin;
-    archivar(b);//AQUI envia por el buzon
-    
-}*/
+	Buzon* buzon_arch = new Buzon(KEY_C);
+    while(true){
+		cout << "ESPERANDO A RECIBIR DATO EN EL BUZON DE ARCHIVAR" << endl;
+		buzon_arch->recibir(1);
+		cout << "DATO RECIBIDO" << endl;
+		//cout << buzon_arch->miBuzon.mText << endl;
+		archivar(buzon_arch->miBuzon.mText);
+    }
+}
 
 void recibe(int espera)
 {
+	cout << "ENTRE EN RECIBE" << endl;
     Socket s1;  // se crea un socket de tipo SOCK_STREAM
     cout << "Ingrese el puerto por el que se comunicaran\n";
     int port = 0;
     cin >> port;
-    char buffer[MAX];
+    char buffer[MAX_M];
     
     s1.Bind(port);// puerto en el que va a recibir las solicitudes
     s1.Listen( 3 );
@@ -176,9 +169,12 @@ void recibe(int espera)
     printf("Conexion Aceptada \n");
     while(true)
     {
+		cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read( buffer, MAX_M );
-        archivar(buffer);
-        std::this_thread::sleep_for(std::chrono::seconds(espera));
+        //cout << buffer << endl;
+        aux->enviar(buffer, 1, MAX_M);
+        //archivar(buffer);
+        //std::this_thread::sleep_for(std::chrono::seconds(espera));
     }
 }
 
@@ -196,8 +192,8 @@ int main()
     //main_semaphore = new Semaphore(0,KEY);
     std::thread recolector(recibe, 1);
     recolector.detach();
-    //std::thread separador(archivar);
-    //separador.detach();
+    std::thread separador(extraeDatos);
+    separador.detach();
     while(!finished){
 
     }
