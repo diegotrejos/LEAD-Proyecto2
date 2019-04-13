@@ -161,7 +161,7 @@ void recibe(int espera)
     cout << "Ingrese el puerto por el que se comunicaran\n";
     int port = 0;
     cin >> port;
-    char buffer[MAX_M];
+    char buffer[133];
     
     s1.Bind(port);// puerto en el que va a recibir las solicitudes
     s1.Listen( 3 );
@@ -172,8 +172,11 @@ void recibe(int espera)
     while(true)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
-        s2->Read( buffer, MAX_M );
+        s2->Read(buffer, 133);
         cout << "RECEPTOR ME LLEGO: " << buffer << endl;
+        cout << buffer[129] << endl;
+        cout << buffer[130] << endl;
+        cout << buffer[131] << endl;
         aux->enviar(buffer, 1, MAX_M);
         //cout << "DATO ENVIADO AL BUZON DE ARCHIVAR: " << contador << endl;
         ++contador;

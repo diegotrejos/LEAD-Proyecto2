@@ -21,25 +21,26 @@ void Emisor::buildSocket()
 
 void Emisor::envio(char* buffer) // con sockets hacia receptor
 {
+	cout << "Tamano util: " << buffer[129] << buffer[130] << buffer[131] << endl;
 	int st = this->s.Write(buffer, PAQSIZE);
 }
 
 void Emisor::recibe(char tag, char* paq,  int paq_size)
 {
 	char buffer[133];
+	for (int i = 0; i < 133; ++i){
+		buffer[i] = 's';
+	}
+	cout << buffer << endl;
 	cout << "Emisor recibi: " << paq << "y tiene tamano util: " << paq_size << endl;
 	memcpy(buffer, paq, 128);
-	buffer[128] = tag;
-	buffer[129] = 'a';
-	buffer[130] = 'a';
-	buffer[131] = 'a';
+
 	cout << "Bufer antes de meter tam: " << buffer << endl;
 	int pos = 131;
 	for (int i = 0; i < 3; ++i){
 		int digit = paq_size % 10;
-		cout << "Digit: " << digit << endl;	
 		sprintf (&buffer[pos], "%d", digit);
-		cout << "Armando buffer: " << buffer << endl;
+		cout << "Armando buffer: " << buffer[pos] << endl;
 		paq_size /= 10;
 		--pos;
 	}
