@@ -20,12 +20,12 @@
 #define KEY 0xB73404
 
 using namespace std;
-typedef struct{
+/*typedef struct{
     char data[128];
     char tag;
     int utiles;
     char ultimo;
-} bytes;
+} bytes;*/
 
 long tipoMenMap = 1;
 Buzon* buz = new Buzon(KEY); // Buzon que va a guardar paquetes recibidos
@@ -35,11 +35,9 @@ bool finished;
 std::vector<std::thread> threads;
 
 
-void creaArchivo(char tag, char* dato, int util_size, char *nombre)//crea archivo nuevo
+void creaArchivo(char tag, char* dato, int util_size, char *nombre) //crea archivo nuevo
 {
-   
-
-    cout << "creando archivo "<< nombre << endl;
+    cout << "creando archivo " << nombre << endl;
     ofstream of (nombre, ios::out | ios::binary);
     //char* c = &dato[0];
     of.write(dato, util_size);
@@ -61,28 +59,32 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 
 void hilo_escribir(long tipoMensaje, char* dato, int util_size, char* nombre)
 {
-    Buzon* buzThread = new Buzon(KEY); // Cada thread crea su buzon, aunque es el mismo por el KEY
+    Buzon* buzThread = new Buzon(KEY); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	char* nombre_de_archivo = nombre;
    
     creaArchivo(tipoMensaje, dato, util_size, nombre_de_archivo);
-    bool imagen_terminada = false;
     
+    bool imagen_terminada = false;
+    char fin; // Para saber si ya es el ultimo paquete
     while(!imagen_terminada)
     {
 		buzThread->recibir(tipoMensaje); // Recibe solo mensajes de tipo tipoMensaje
-		// Salirse si la ultima posicion es una t 
+		
+		// Escribir en el archivo lo recibido segun la cantidad de bytes utiles
+		
+		fin = buzThread->miBuzon.mText[128];
+		if(fin == 't'){ // Salirse si la ultima posicion es una t 
+			imagen_terminada = true;
+		}
+		
     }
 }
 
 
-void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos.
+void archivar(char* data, int tamanoUtil) //este mae se va a encargar de ver si el tag es nuevo para ver que hace con los datos
 {
-    char tag = b.tag;
-    char* data = b.data;
-    int utiles = b.utiles;
-    bool nuevo = true;//decide si el tag es nuevo
-    
-    //cout<<"tag: "<< tag <<" ."<<endl;
+    bool nuevo = true; // Decide si el tag es nuevo
+    char tag = data[128]; // Estandar
     
     for (auto itr = tags.begin(); itr != tags.end(); ++itr) //revisa que no exista este tag
     { 
@@ -106,46 +108,33 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
         strcpy (nombre, Ccontador.c_str());
 
         tags.insert(pair<char,int>(tag, contadorArchivos));
-        buz->enviar(data, contadorArchivos, utiles); // contador lleva cuantos mensajes se han creado, 
-													 // entonces los envia de ese tipo
+        buz->enviar(data, contadorArchivos, tamanoUtil); // contador lleva cuantos mensajes se han creado, 
+													    // entonces los envia de ese tipo
+        
+        // Lanza thread nuevo
+        // std::thread worker(hilo_escribir, contadorArchivos, data, tamanoUtil, nombre);
+        // worker.detach();
+        // el nombre del archivo es el resto del paquete
         contadorArchivos++;
-     
         
-        
-        //std::thread worker(hilo_escribir, hilo, data, utiles, nombre);
-        //worker.detach();
-        //el nombre del archivo es el resto del paquete
     }   
         
-    else//si no es nuevo escribe en uno existente
+    else // Si no es nuevo escribe en uno existente
     {
-        cout<< "Su hilo es: "<< contadorArchivos << endl;
-        buz->enviar(data, tipoMenMap, utiles);
+        // cout << "Su hilo es: "<< contadorArchivos << endl;
+        buz->enviar(data, tipoMenMap, tamanoUtil); // tipoMenMap tiene la posicion por el for con iteradores del inicio
     }
-    //contador++;
 }
 
 
 void extraeDatos(char* datos)
 {
-    char tag = datos[128];
-    cout << "tag: "<< tag << endl;
-    int tam_util = 0;
+    int tamanoUtil = 0;
     char part[3];
-    char data[128];
     memcpy(part, datos + 129, 3); // Copia los 3 chars que dan cantidad de bytes utiles
-    memcpy(data, datos, 128); // Copia los 128 bytes maximos de bytes utiles
-    tam_util = atoi(part);
-    char fin = datos[132];
-    cout << "Size util: " << tam_util << endl;
-
-    bytes b;
-    memcpy(b.data, data, 128);
-    b.tag = tag;
-    b.utiles = tam_util;
-    b.ultimo = fin;
-    archivar(b);//AQUI envia por el buzon
-    
+    tamanoUtil = atoi(part);
+    // cout << "Size util: " << tamanoUtil << endl;
+    archivar(datos, tamanoUtil);
 }
 
 
