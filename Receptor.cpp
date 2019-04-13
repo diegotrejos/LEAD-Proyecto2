@@ -15,6 +15,8 @@
 #include "Semaphore.cpp"
 #include "Socket.h"
 #include "Buzon.h"
+
+
 #define MAX 133
 
 #define KEY 0xB57414
@@ -63,12 +65,32 @@ void escribir(char tag, char* datos, int util_size, char* nombre)//continua escr
 
 }
 
-void hilo_escribir(char tag,char* dato,int util_size,char* nombre)
+void hilo_escribir(bytes const  &b)
 {
+    int contador=999;
+    for (auto itr = tags.begin(); itr != tags.end(); ++itr)//revisa que no exista este tag
+    { 
+        
+        if(b.tag == itr->first)
+        {
+         
+            contador=itr->second;
+            cout<<"tag: "<<b.tag<<" en el hilo: "<<itr->second<<endl;
+        }
+    }
+
+       
+        string nombre_archivo="resultados/imagen";
+        string Ccontador=to_string(contador);
+        Ccontador=nombre_archivo+Ccontador;
+        char nombre[Ccontador.size()];
+        strcpy (nombre, Ccontador.c_str());
+
+
     
-   char* nombre_de_archivo= nombre;
+  
    
-    creaArchivo(tag, dato, util_size, nombre_de_archivo);
+    creaArchivo(b.tag, b.data, b.utiles, nombre);
     bool imagen_terminada = false;
     
     while(!imagen_terminada)
@@ -106,17 +128,12 @@ void archivar(bytes b) //este mae se va a encargar de ver si el tag es nuevo par
     { //OJO!!! Si el tag es nuevo, hay que crear un hilo nuevo, un semáforo y una cola en el vector
         //CREAR HILO: thread_queues.pushback( new std::thread(escribir) )
         // thread_queues[pos].detach()
-        
-        string nombre_archivo="resultados/imagen";
-        string Ccontador=to_string(contador);
-        Ccontador=nombre_archivo+Ccontador;
-        char nombre[Ccontador.size()];
-        strcpy (nombre, Ccontador.c_str());
+      
 
         tags.insert(pair<char,int>(tag,contador));
         contador++;
-        //std::thread worker(hilo_escribir, tag, data, utiles, nombre);
-        //worker.detach();
+        std::thread worker(hilo_escribir,b);
+        worker.detach();
         //el nombre del archivo es el resto del paquete
         //*******crea hilo  y llama a metodo hilo_escribir(tag,data,dara_util, nombre);
         //pthread_create(contador, NULL, hilo_escribir(tag,data,utiles, nombre), NULL);
