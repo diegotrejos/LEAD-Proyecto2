@@ -49,7 +49,7 @@ void creaArchivo(const char* dato, int util_size, char *nombre)//crea archivo nu
 void escribir(char* datos, int util_size, char* nombre)//continua escribiendo en archivo existente
 {
    
-    //cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre_archivo<<endl;
+    cout<<"se va a escribir en el archivo ya existente llamado: "<<nombre<<endl;
 
     ofstream of;  // Create Object of Ofstream
     of.open (nombre, ios::app); // Append mode
@@ -67,7 +67,7 @@ void hilo_escribir(long archivo)
 	cout << "Recibir del thread: " << buzThread->miBuzon.mText << endl;
 	char part[3];
 	memcpy(part, buzThread->miBuzon.mText + 129, 3);
-	cout << "Part: " << part << endl;
+	//cout << "Part: " << part << endl;
 	int bytesUtiles = atoi(part);
 	cout << "Hilo datos utiles: " << bytesUtiles << endl;
     
@@ -76,6 +76,7 @@ void hilo_escribir(long archivo)
     Ccontador=nombre_archivo+Ccontador;
     char nombre[Ccontador.size()];
     strcpy (nombre, Ccontador.c_str());
+    strcat(nombre, ".jpg");
    
     creaArchivo(buzThread->miBuzon.mText, bytesUtiles, nombre); //el nombre solo se crea 1 vez y no va a cambiar por hilo.
     bool imagen_terminada = false;
@@ -90,7 +91,7 @@ void hilo_escribir(long archivo)
 		cout << "Bytes utiles: " << bytesUtiles << endl;
 		char fin = buzThread->miBuzon.mText[132];
 		//memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
-		//escribir(data, bytesUtiles, nombre);
+		escribir(buzThread->miBuzon.mText, bytesUtiles, nombre);
 		if(fin == 't'){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
 			cout << "Imagen terminada\n";
@@ -101,7 +102,7 @@ void hilo_escribir(long archivo)
 
 void archivar(char* buffer) // Revisa tags
 {
-	
+	cout << "EN ARCHIVAR MI BUFFER ES: " << buffer << endl;
     char tag = buffer[128];
     bool nuevo=true; // Decide si el tag es nuevo
     long hilo = 0;
@@ -121,7 +122,7 @@ void archivar(char* buffer) // Revisa tags
 
     if(nuevo==true)//si el tag es nuevo crea archivo*************************8
     {
-        tags.insert(pair<char,int>(tag,contadorArchivos));
+        tags.insert(pair<char,long>(tag,contadorArchivos));
         //cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
         cout << "Mandar a buzon del thread: " << buffer << endl;
@@ -173,10 +174,10 @@ void recibe(int espera)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read(buffer, 133);
-        cout << "RECEPTOR ME LLEGO: " << buffer << endl;
-        cout << buffer[129] << endl;
-        cout << buffer[130] << endl;
-        cout << buffer[131] << endl;
+        //cout << "RECEPTOR ME LLEGO: " << buffer << endl;
+        //cout << buffer[129] << endl;
+        //cout << buffer[130] << endl;
+        //cout << buffer[131] << endl;
         aux->enviar(buffer, 1, MAX_M);
         //cout << "DATO ENVIADO AL BUZON DE ARCHIVAR: " << contador << endl;
         ++contador;
@@ -197,8 +198,8 @@ int main()
     //thread_semaphores = new vector<Semaphore>();
     //threads = vector<std::thread>();
     //main_semaphore = new Semaphore(0,KEY);
-    //delete(buz);
-    //delete(aux);
+    delete(buz);
+    delete(aux);
     std::thread recolector(recibe, 1);
     recolector.detach();
     std::thread separador(extraeDatos);

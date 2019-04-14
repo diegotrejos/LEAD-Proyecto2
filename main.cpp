@@ -107,15 +107,15 @@ void contratista(char const* imagen, const char tag)
 }
 
 int lector(char* directorio){
-	/*if(!test_directory(directorio)){ // Revisa si el posible abrir el directorio
+	if(!test_directory(directorio)){ // Revisa si el posible abrir el directorio
 		std:: cout << "Fallo al abrir el directorio\n";
 		return 1;
-	}*/
+	}
 	
 	struct dirent** imagenes; // Estructura que guarda la posicion de memoria y el nombre de las imagenes
 	int n = 0;
 	int i;
-	//n = scandir(directorio, &imagenes, filter_function, versionsort);
+	n = scandir(directorio, &imagenes, filter_function, versionsort);
 	if (n < 0)
         perror("scandir");
     else
@@ -126,11 +126,11 @@ int lector(char* directorio){
 			contrat_ctrl->wait();
 			//cout << i << endl;
 			if(fork() == 0){
-				contratista(strcat(directorio, "hola.txt"), char(i+33));
-				//free(imagenes[i]);
+				contratista(strcat(directorio, imagenes[i]->d_name), char(i+33));
+				free(imagenes[i]);
             }
         }
-        //free(imagenes);
+        free(imagenes);
     }
 	return 0;
 }
