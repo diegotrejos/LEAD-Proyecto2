@@ -61,15 +61,20 @@ void escribir(char* datos, int util_size, char* nombre)//continua escribiendo en
 
 void hilo_escribir(long archivo)
 {	
+	char toEnd = 't';
+	
 	cout << "ENTRE EN ESCRIBIR CON EL HILO " << archivo << endl;
     Buzon* buzThread = new Buzon(KEY_B); // Cada thread "crea" su buzon, aunque es el mismo debido al KEY
 	buzThread->recibir(archivo); // Era necesario pasar el id del tipo de datos para poder recibir el mensaje
-	cout << "Recibir del thread: " << buzThread->miBuzon.mText << endl;
+	char fin = buzThread->miBuzon.mText[132];
+	cout << "PRIMER RECIBIR del thread: " << buzThread->miBuzon.mText << endl;
 	char part[3];
 	memcpy(part, buzThread->miBuzon.mText + 129, 3);
 	//cout << "Part: " << part << endl;
 	int bytesUtiles = atoi(part);
 	cout << "Hilo datos utiles: " << bytesUtiles << endl;
+	
+	cout << "HILO FIN: " << fin << endl;
     
     string nombre_archivo="resultados/imagen";
     string Ccontador=to_string(archivo); //el tipo de datos del archivo es igual al numero de archivo.
@@ -89,10 +94,11 @@ void hilo_escribir(long archivo)
 		memcpy(part, buzThread->miBuzon.mText + 129, 3);
 		bytesUtiles = atoi(part);
 		cout << "Bytes utiles: " << bytesUtiles << endl;
-		char fin = buzThread->miBuzon.mText[132];
+		fin = buzThread->miBuzon.mText[132];
+		cout << "FIN: " << fin << endl;
 		//memcpy(data, buzThread->miBuzon.mText, bytesUtiles);
 		escribir(buzThread->miBuzon.mText, bytesUtiles, nombre);
-		if(fin == 't'){ // Salirse si la ultima posicion es una t 
+		if(fin == toEnd){ // Salirse si la ultima posicion es una t 
 			imagen_terminada = true;
 			cout << "Imagen terminada\n";
 		}
@@ -102,7 +108,7 @@ void hilo_escribir(long archivo)
 
 void archivar(char* buffer) // Revisa tags
 {
-	cout << "EN ARCHIVAR MI BUFFER ES: " << buffer << endl;
+	//cout << "EN ARCHIVAR MI BUFFER ES: " << buffer << endl;
     char tag = buffer[128];
     bool nuevo=true; // Decide si el tag es nuevo
     long hilo = 0;
@@ -125,7 +131,7 @@ void archivar(char* buffer) // Revisa tags
         tags.insert(pair<char,long>(tag,contadorArchivos));
         //cout << "ENVIANDO DATO A BUZON DE HILOS" << endl;
         buz->enviar(buffer, contadorArchivos, MAX_M);
-        cout << "Mandar a buzon del thread: " << buffer << endl;
+        //cout << "Mandar a buzon del thread: " << buffer << endl;
         //cout << "DATO ENVIADO A BUZON DE HILOS" << endl;
         std::thread worker(hilo_escribir, contadorArchivos);
         //cout << "LUEGO DE CREAR HILO DE ESCRITURA PARA EL ARCHIVO " << contadorArchivos << endl;
@@ -150,7 +156,7 @@ void extraeDatos()
 		//cout << "Arvhivar: " << contador << endl;
 		//++contador;
 		//cout << buzon_arch->miBuzon.mText << endl;
-		cout << "Voy a archivar: " << buzon_arch->miBuzon.mText << endl;
+		//cout << "Voy a archivar: " << buzon_arch->miBuzon.mText << endl;
 		archivar(buzon_arch->miBuzon.mText);
     }
 }
@@ -173,7 +179,7 @@ void recibe(int espera)
     while(true)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
-        s2->Read(buffer, 133);
+        s2->Read(buffer, MAX_M);
         //cout << "RECEPTOR ME LLEGO: " << buffer << endl;
         //cout << buffer[129] << endl;
         //cout << buffer[130] << endl;
@@ -198,8 +204,8 @@ int main()
     //thread_semaphores = new vector<Semaphore>();
     //threads = vector<std::thread>();
     //main_semaphore = new Semaphore(0,KEY);
-    delete(buz);
-    delete(aux);
+    //delete(buz);
+    //delete(aux);
     std::thread recolector(recibe, 1);
     recolector.detach();
     std::thread separador(extraeDatos);

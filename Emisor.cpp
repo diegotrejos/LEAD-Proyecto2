@@ -42,6 +42,14 @@ void Emisor::recibe(char tag, char* paq,  int paq_size)
 	//for (int i = aux-2; i < 133; ++i){
 	//	buffer[i] = '*';
 	//}
+	
+	buffer[128] = tag;
+	if(paq_size < 128){
+		buffer[132] = 't';
+	}else{
+		buffer[132] = 'f';
+	}
+	
 	int pos = 131;
 	for (int i = 0; i < 3; ++i){
 		int digit = paq_size % 10;
@@ -51,12 +59,7 @@ void Emisor::recibe(char tag, char* paq,  int paq_size)
 		paq_size /= 10;
 		--pos;
 	}
-	buffer[128] = tag;
-	if(paq_size < 128){
-		buffer[132] = 't';
-	}else{
-		buffer[132] = 'f';
-	}
+	
 	cout << "Emisor voy a enviar: " << buffer << endl;
 	envio(buffer);
 }
