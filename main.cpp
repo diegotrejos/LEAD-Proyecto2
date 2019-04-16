@@ -20,8 +20,8 @@ Semaphore* contrat_ctrl; //semaforo para controlar la cantidad de contratistas
 Buzon* bzn;
 
 
-// g++ -Wall -Wextra Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h main.cpp -o clonador
-//La ejecución debe ser 
+// g++ -Wall -Wextra -pthread Socket.h Socket.cpp Buzon.h Buzon.cpp Semaphore.cpp Semaphore.h Emisor.cpp Emisor.h main.cpp -o clonador
+// La ejecución debe ser
 //./clonador /path/del/directorio/
 
 int filter_function(const struct dirent *dir){
@@ -61,23 +61,23 @@ void contratista(char const* imagen, const char tag)
 		contador = contador + 512;
 		
 		vector<char> vector1(result.begin(), result.begin() + 128);
-		vector1.insert(vector1.end(), 'f');
-		bzn->enviar(vector1.data(), 1, 129);
+		//vector1.insert(vector1.end(), 'f');
+		bzn->enviar(vector1.data(), 1, 128);
 		++cantidadMensajes;
 		
 		vector<char> vector2(result.begin() + 128, result.begin() + 256); 
-		vector2.insert(vector2.end(), 'f');
-		bzn->enviar(vector2.data(), 1, 129);
+		//vector2.insert(vector2.end(), 'f');
+		bzn->enviar(vector2.data(), 1, 128);
 		++cantidadMensajes;
 		
 		vector<char> vector3(result.begin() + 256, result.begin() + 384); 
-		vector3.insert(vector3.end(), 'f');
-		bzn->enviar(vector3.data(), 1, 129);
+		//vector3.insert(vector3.end(), 'f');
+		bzn->enviar(vector3.data(), 1, 128);
 		++cantidadMensajes;
 		
 		vector<char> vector4(result.begin() + 384, result.begin() + 512);
-		vector4.insert(vector4.end(), 'f');
-		bzn->enviar(vector4.data(), 1, 129);
+		//vector4.insert(vector4.end(), 'f');
+		bzn->enviar(vector4.data(), 1, 128);
 		++cantidadMensajes;
 	}
 	while (contador != int(tam)){ //cuando queda menos de 512 bytes
@@ -86,8 +86,8 @@ void contratista(char const* imagen, const char tag)
 			ifs.read(&result[0], 128);
 
 			contador  = contador + 128;
-			result.insert(result.end(), 'f');
-			bzn->enviar(result.data(), 1, 129);
+			//result.insert(result.end(), 'f');
+			bzn->enviar(result.data(), 1, 128);
 			++cantidadMensajes;
 		}else{
 			result.resize(int(tam)-contador);
@@ -95,8 +95,7 @@ void contratista(char const* imagen, const char tag)
 			ifs.read(&result[0], size);
 
 			contador  = tam;
-			result.insert(result.end(), 't');
-			bzn->enviar(result.data(), 1, size + 1);
+			bzn->enviar(result.data(), 1, size);
 			++cantidadMensajes;
 		}
 	}
@@ -121,7 +120,7 @@ int lector(char* directorio){
     else
     {
 		//cout << n << endl;
-        for(i =0 ; i < /*n*/ 1; ++i)
+        for(i =0 ; i < n; ++i)
         {
 			contrat_ctrl->wait();
 			//cout << i << endl;
@@ -171,7 +170,5 @@ int main(int argc, char* argv[]){
 		}
 		//cout << "CERRÓ EL EMISOR" << endl; 
 	}
-	
-	
 	return 0;
 }
