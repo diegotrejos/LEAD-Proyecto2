@@ -1,5 +1,6 @@
 #include "Emisor.h"
 //#include "Buzon.h"
+#include <unistd.h>
 #define PAQSIZE 133
 
 
@@ -22,6 +23,8 @@ void Emisor::buildSocket()
 void Emisor::envio(char* buffer) // con sockets hacia receptor
 {
 	cout << "Tamano util: " << buffer[129] << buffer[130] << buffer[131] << endl;
+	unsigned int microseconds = 3;
+	usleep(microseconds);
 	int st = this->s.Write(buffer, PAQSIZE);
 }
 

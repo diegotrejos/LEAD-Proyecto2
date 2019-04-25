@@ -12,6 +12,7 @@
 #include <iterator>
 #include <thread>
 #include <queue>
+#include <unistd.h>
 #include "Semaphore.cpp"
 #include "Socket.h"
 #include "Buzon.h"
@@ -180,6 +181,8 @@ void recibe(int espera)
     {
 		//cout << "ENVIANDO DATO AL BUZON DE ARCHIVAR" << endl;
         s2->Read(buffer, MAX_M);
+        unsigned int microseconds = 3;
+		usleep(microseconds);
         //cout << "RECEPTOR ME LLEGO: " << buffer << endl;
         //cout << buffer[129] << endl;
         //cout << buffer[130] << endl;
